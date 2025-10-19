@@ -49,7 +49,7 @@ fn execute_r(code: String) -> String {
     let path = temp_file.path();
     let output = Command::new("Rscript").arg(path).output().unwrap();
 
-    if temp_dir.to_string_lossy() != env::var("RUNNER_TEMP").unwrap_or_else(|_| String::new()) {
+    if temp_dir.to_string_lossy() != env::var("TEMP").unwrap_or_else(|_| String::new()) {
         remove_dir_all(temp_dir).unwrap();
     }
 
