@@ -30,7 +30,7 @@ jobs:
         run: cargo build
 
       - name: Test
-        run: cargo test --features full
+        run: cargo test
 
   nightly:
     name: Test (nightly)
@@ -108,4 +108,4 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Check
-        run: cargo check --features full
+        run: cargo check

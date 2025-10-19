@@ -20,6 +20,23 @@ use crate::{Computation, Error, Float};
 ///
 /// The sample size of `data` must be more than 1.
 /// Also, the range of `data` must not be equal to 0.
+///
+/// # Examples
+///
+/// ```
+/// use normality::pearson_chi_squared;
+///
+/// let normal_data = vec![-1.1, 0.2, -0.4, 0.0, -0.7, 1.2, -0.1, 0.8, 0.5, -0.9];
+/// let result = pearson_chi_squared(&normal_data, None, true).unwrap();
+/// // p-value should be high for normal data
+/// assert!(result.p_value > 0.05);
+///
+/// let uniform_data =
+///     vec![2.0, 2.0, 2.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0];
+/// let result_uniform = pearson_chi_squared(&uniform_data, None, true).unwrap();
+/// // p-value should be low for non-normal data
+/// assert!(result_uniform.p_value < 0.05);
+/// ```
 pub fn pearson_chi_squared<T: Float>(
     data: &[T],
     n_classes: Option<usize>,

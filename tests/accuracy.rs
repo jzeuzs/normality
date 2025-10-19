@@ -1,10 +1,13 @@
+use std::env;
+use std::fs::remove_dir_all;
 use std::io::Write;
+use std::path::PathBuf;
 use std::process::Command;
 
 use nanoid::nanoid;
 use rand::distributions::Distribution;
 use statrs::distribution::{Normal, Uniform};
-use tempfile::Builder;
+use tempfile::{Builder, tempdir};
 
 fn sample_norm_data(n: usize) -> Vec<f64> {
     let mut rng = rand::thread_rng();
@@ -29,16 +32,26 @@ fn data_to_r(data: &[f64]) -> String {
 }
 
 fn execute_r(code: String) -> String {
+    let temp_dir = env::var("RUNNER_TEMP").map(PathBuf::from).unwrap_or_else(|_| {
+        let temp_dir = tempdir().unwrap();
+
+        temp_dir.keep()
+    });
+
     let mut temp_file = Builder::new()
         .prefix(&format!("normalityrs-test-{}", nanoid!()))
         .suffix(".R")
-        .tempfile_in("./")
+        .tempfile_in(&temp_dir)
         .unwrap();
 
     writeln!(temp_file, "{}", code).unwrap();
 
     let path = temp_file.path();
     let output = Command::new("Rscript").arg(path).output().unwrap();
+
+    if temp_dir.to_string_lossy() != env::var("RUNNER_TEMP").unwrap_or_else(|_| String::new()) {
+        remove_dir_all(temp_dir).unwrap();
+    }
 
     String::from_utf8_lossy(&output.stdout).trim().to_string()
 }
