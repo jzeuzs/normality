@@ -22,6 +22,16 @@ jobs:
             - name: Add problem matchers
               shell: bash
               run: echo "::add-matcher::.github/matchers/rust.json"
+            
+            - name: Install R
+              uses: r-lib/actions/setup-r@v2
+
+            - name: Install R packages
+              uses: r-lib/actions/setup-r-dependencies@v2
+              with:
+                  extra-packages: |
+                      any::nortest
+                      any::moments
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -30,7 +40,7 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: cargo test
+              run: TEMP_DIR="${{ runner.temp }}" cargo test
 
     nightly:
         name: Test (nightly)
@@ -55,9 +65,9 @@ jobs:
             - name: Install R packages
               uses: r-lib/actions/setup-r-dependencies@v2
               with:
-                  packages: |
-                      nortest
-                      moments
+                  extra-packages: |
+                      any::nortest
+                      any::moments
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -66,7 +76,7 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: cargo test
+              run: TEMP_DIR="${{ runner.temp }}" cargo test
 
     macOS:
         name: Test (macOS)
@@ -89,9 +99,9 @@ jobs:
             - name: Install R packages
               uses: r-lib/actions/setup-r-dependencies@v2
               with:
-                  packages: |
-                      nortest
-                      moments
+                  extra-packages: |
+                      any::nortest
+                      any::moments
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -100,15 +110,10 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: cargo test
+              run: TEMP_DIR="${{ runner.temp }}" cargo test
 
     MSRV:
         runs-on: ubuntu-latest
-
-        # We only run this job on the current branch as keeping MSRV the same is not important on next.
-        if: (github.event_name == 'push' && github.ref_name == 'current') ||
-            (github.event_name == 'pull_request' && github.base_ref == 'current')
-
         steps:
             - name: Checkout sources
               uses: actions/checkout@v5
