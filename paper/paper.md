@@ -31,6 +31,7 @@ The Rust programming language is gaining traction in fields such as data enginee
 The `normality` crate fills this gap by proving a single and reliable crate that consolidates different widely-used normality testing methods into one package. Each test implemented has been tested for accuracy against its equivalent in the R programming language [@r_core_team_r_2025].
 
 THe implemented tests are the following:
+
 - Shapiro-Wilk Test [@shapiro_analysis_1965];
 - Lilliefors (Kolmogorov-Smirnow) Test [@lilliefors_kolmogorov-smirnov_1967];
 - Anderson-Darling Test [@anderson_test_1954];
