@@ -16,6 +16,8 @@ jobs:
 
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
+        with:
+            toolchain: stable
 
       - name: Add problem matchers
         shell: bash

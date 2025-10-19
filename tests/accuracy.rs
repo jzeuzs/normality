@@ -32,7 +32,7 @@ fn execute_r(code: String) -> String {
     let mut temp_file = Builder::new()
         .prefix(&format!("normalityrs-test-{}", nanoid!()))
         .suffix(".R")
-        .tempfile()
+        .tempfile_in("./")
         .unwrap();
 
     writeln!(temp_file, "{}", code).unwrap();
