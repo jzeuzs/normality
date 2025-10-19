@@ -1,0 +1,109 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  rust_min: 1.87.0
+  rust_nightly: nightly
+
+jobs:
+  test:
+    name: Test
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+
+      - name: Add problem matchers
+        shell: bash
+        run: echo "::add-matcher::.github/matchers/rust.json"
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build
+
+      - name: Test
+        run: cargo test --features full
+
+  nightly:
+    name: Test (nightly)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install toolchain (${{ env.rust_nightly }})
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust_nightly }}
+
+      - name: Add problem matchers
+        shell: bash
+        run: echo "::add-matcher::.github/matchers/rust.json"
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build
+
+      - name: Test
+        run: cargo test
+
+  macOS:
+    name: Test (macOS)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add problem matchers
+        shell: bash
+        run: echo "::add-matcher::.github/matchers/rust.json"
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Remove cargo build config
+        run: rm .cargo/config.toml
+
+      - name: Build
+        run: cargo build
+
+      - name: Test
+        run: cargo test
+
+  MSRV:
+    runs-on: ubuntu-latest
+
+    # We only run this job on the current branch as keeping MSRV the same is not important on next.
+    if: (github.event_name == 'push' && github.ref_name == 'current') ||
+        (github.event_name == 'pull_request' && github.base_ref == 'current') 
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install toolchain (${{ env.rust_min }})
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust_min }}
+
+      - name: Add problem matchers
+        run: echo "::add-matcher::.github/matchers/rust.json"
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check
+        run: cargo check --features full
