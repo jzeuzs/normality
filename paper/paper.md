@@ -10,13 +10,14 @@ tags:
 authors:
   - name: Jezzu Morrisen C. Quimosing
     orcid: 0009-0001-4302-7946
-		affiliation: 1
+    affiliation: 1
 
 affiliations:
-	- name: Independent Researcher, Philippines
-		index: 1
+  - name: Independent Researcher, Philippines
+    index: 1
 
 date: 19 October 2025
+bibliography: paper.bib
 ---
 
 # Summary
