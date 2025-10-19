@@ -3,46 +3,46 @@ name: Lint
 on: [push, pull_request]
 
 jobs:
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
+    clippy:
+        name: Clippy
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v5
+        steps:
+            - name: Checkout sources
+              uses: actions/checkout@v5
 
-      - name: Install toolchain
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: clippy
+            - name: Install toolchain
+              uses: dtolnay/rust-toolchain@nightly
+              with:
+                  components: clippy
 
-      - name: Add problem matchers
-        run: echo "::add-matcher::.github/matchers/rust.json"
+            - name: Add problem matchers
+              run: echo "::add-matcher::.github/matchers/rust.json"
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
+            - name: Cache
+              uses: Swatinem/rust-cache@v2
 
-      - name: Run clippy
-        run: cargo clippy --tests
+            - name: Run clippy
+              run: cargo clippy --tests
 
-  rustfmt:
-    name: Format
-    runs-on: ubuntu-latest
+    rustfmt:
+        name: Format
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v5
+        steps:
+            - name: Checkout sources
+              uses: actions/checkout@v5
 
-      - name: Install toolchain
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: rustfmt
+            - name: Install toolchain
+              uses: dtolnay/rust-toolchain@nightly
+              with:
+                  components: rustfmt
 
-      - name: Add problem matchers
-        run: echo "::add-matcher::.github/matchers/rust.json"
+            - name: Add problem matchers
+              run: echo "::add-matcher::.github/matchers/rust.json"
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
+            - name: Cache
+              uses: Swatinem/rust-cache@v2
 
-      - name: Run cargo fmt
-        run: cargo fmt --all -- --check
+            - name: Run cargo fmt
+              run: cargo fmt --all -- --check
