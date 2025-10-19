@@ -1,6 +1,7 @@
 [package]
 name = "normality"
 version = "1.0.0"
+description = "A Rust crate for assessing the normality of a data sample."
 edition = "2024"
 rust-version = "1.87.0"
 repository = "https://github.com/jzeuzs/normality"
