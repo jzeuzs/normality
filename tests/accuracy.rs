@@ -109,8 +109,8 @@ macro_rules! gen_accuracy_tests {
                     unreachable!()
                 };
 
-                let norm_result = shapiro_wilk(&norm).unwrap();
-                let unif_result = shapiro_wilk(&unif).unwrap();
+                let norm_result = shapiro_wilk(norm).unwrap();
+                let unif_result = shapiro_wilk(unif).unwrap();
 
                 assert_float_absolute_eq!(r_norm_stat, norm_result.statistic);
                 assert_float_absolute_eq!(r_norm_p, norm_result.p_value);
@@ -162,8 +162,8 @@ macro_rules! gen_accuracy_tests {
                     unreachable!()
                 };
 
-                let norm_result = lilliefors(&norm).unwrap();
-                let unif_result = lilliefors(&unif).unwrap();
+                let norm_result = lilliefors(norm).unwrap();
+                let unif_result = lilliefors(unif).unwrap();
 
                 assert_float_absolute_eq!(r_norm_stat, norm_result.statistic);
                 assert_float_absolute_eq!(r_norm_p, norm_result.p_value);
@@ -215,8 +215,8 @@ macro_rules! gen_accuracy_tests {
                     unreachable!()
                 };
 
-                let norm_result = anderson_darling(&norm).unwrap();
-                let unif_result = anderson_darling(&unif).unwrap();
+                let norm_result = anderson_darling(norm).unwrap();
+                let unif_result = anderson_darling(unif).unwrap();
 
                 assert_float_absolute_eq!(r_norm_stat, norm_result.statistic);
                 assert_float_absolute_eq!(r_norm_p, norm_result.p_value);
@@ -268,8 +268,8 @@ macro_rules! gen_accuracy_tests {
                     unreachable!()
                 };
 
-                let norm_result = jarque_bera(&norm).unwrap();
-                let unif_result = jarque_bera(&unif).unwrap();
+                let norm_result = jarque_bera(norm).unwrap();
+                let unif_result = jarque_bera(unif).unwrap();
 
                 assert_float_absolute_eq!(r_norm_stat, norm_result.statistic);
                 assert_float_absolute_eq!(r_norm_p, norm_result.p_value);
@@ -316,8 +316,8 @@ macro_rules! gen_accuracy_tests {
                     unreachable!()
                 };
 
-                let norm_result = dagostino_k_squared(&norm).unwrap();
-                let unif_result = dagostino_k_squared(&unif).unwrap();
+                let norm_result = dagostino_k_squared(norm).unwrap();
+                let unif_result = dagostino_k_squared(unif).unwrap();
 
                 assert_float_absolute_eq!(r_norm_stat, norm_result.statistic);
                 assert_float_absolute_eq!(r_norm_p, norm_result.p_value);
@@ -364,8 +364,8 @@ macro_rules! gen_accuracy_tests {
                     unreachable!()
                 };
 
-                let norm_result = pearson_chi_squared(&norm, None, true).unwrap();
-                let unif_result = pearson_chi_squared(&unif, None, true).unwrap();
+                let norm_result = pearson_chi_squared(norm, None, true).unwrap();
+                let unif_result = pearson_chi_squared(unif, None, true).unwrap();
 
                 assert_float_absolute_eq!(r_norm_stat, norm_result.statistic);
                 assert_float_absolute_eq!(r_norm_p, norm_result.p_value);

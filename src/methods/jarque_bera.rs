@@ -1,3 +1,5 @@
+use std::iter::IntoIterator;
+
 use statrs::distribution::{ChiSquared, ContinuousCDF};
 
 use crate::{Computation, Error, Float};
@@ -11,8 +13,8 @@ use crate::{Computation, Error, Float};
 /// Under the null hypothesis of normality, this statistic follows a chi-squared
 /// distribution with 2 degrees of freedom.
 ///
-/// Takes one argument `data` which is a slice (`&[T]`) containing the data sample. This can be a
-/// [`Vec<T>`](Vec), an array [`[T; N]`](std::slice), or an [`ndarray::Array1<T>`](ndarray::Array1).
+/// Takes one argument `data` which is an iterator over floating-point numbers ([`impl
+/// IntoIterator<Item = T>`](IntoIterator)).
 ///
 /// The sample size of `data` must be greater than or equal to 3.
 /// Also, the range of `data` must not be equal to 0.
@@ -23,18 +25,20 @@ use crate::{Computation, Error, Float};
 /// use normality::jarque_bera;
 ///
 /// let normal_data = vec![-1.1, 0.2, -0.4, 0.0, -0.7, 1.2, -0.1, 0.8, 0.5, -0.9];
-/// let result = jarque_bera(&normal_data).unwrap();
+/// let result = jarque_bera(normal_data).unwrap();
 /// // p-value should be high for normal data
 /// assert!(result.p_value > 0.05);
 ///
 /// let uniform_data =
 ///     vec![2.0, 2.0, 2.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0];
-/// let result_uniform = jarque_bera(&uniform_data).unwrap();
+/// let result_uniform = jarque_bera(uniform_data).unwrap();
 /// // p-value should be low for non-normal data
 /// assert!(result_uniform.p_value < 0.05);
 /// ```
-pub fn jarque_bera<T: Float>(data: &[T]) -> Result<Computation<T>, Error> {
+pub fn jarque_bera<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Computation<T>, Error> {
+    let data: Vec<T> = data.into_iter().collect();
     let n = data.len();
+
     if n < 3 {
         return Err(Error::InsufficientSampleSize {
             needed: 3,
@@ -47,11 +51,8 @@ pub fn jarque_bera<T: Float>(data: &[T]) -> Result<Computation<T>, Error> {
     }
 
     let n_t = T::from(n).unwrap();
-
     let m1 = data.iter().fold(T::zero(), |acc, &x| acc + x) / n_t; // Mean
-
     let deviations: Vec<T> = data.iter().map(|&x| x - m1).collect();
-
     let m2 = deviations.iter().map(|&d| d.powi(2)).sum::<T>() / n_t; // Variance (biased)
 
     if m2 < T::epsilon() {

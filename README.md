@@ -30,7 +30,7 @@ fn main() -> Result<(), Error> {
     let data = vec![-1.1, -0.8, -0.5, -0.2, 0.0, 0.2, 0.5, 0.8, 1.1, 1.3];
 
     // Perform the Shapiro-Wilk test
-    let result = shapiro_wilk(&data)?;
+    let result = shapiro_wilk(data)?;
 
     println!("Shapiro-Wilk Test Results:");
     println!("  W-statistic: {:.4}", result.statistic);
