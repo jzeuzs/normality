@@ -1,3 +1,5 @@
+use std::iter::IntoIterator;
+
 use statrs::distribution::{ChiSquared, ContinuousCDF, Normal};
 
 use crate::{Computation, Error, Float};
@@ -7,8 +9,8 @@ use crate::{Computation, Error, Float};
 /// The test assesses normality by binning the data and comparing the observed
 /// frequency in each bin to the expected frequency under a normal distribution.
 ///
-/// Takes an argument `data` which is a slice (`&[T]`) containing the data sample. This can be a
-/// [`Vec<T>`](Vec), an array [`[T; N]`](std::slice), or an [`ndarray::Array1<T>`](ndarray::Array1).
+/// Takes an argument `data` which is an iterator over floating-point numbers ([`impl
+/// IntoIterator<Item = T>`](IntoIterator)).
 ///
 /// It also takes an `n_classes` which is an optional [`usize`] specifying the number of classes
 /// (bins) to use. If [`None`], the number of classes is determined by the formula: `ceil(2 *
@@ -27,22 +29,22 @@ use crate::{Computation, Error, Float};
 /// use normality::pearson_chi_squared;
 ///
 /// let normal_data = vec![-1.1, 0.2, -0.4, 0.0, -0.7, 1.2, -0.1, 0.8, 0.5, -0.9];
-/// let result = pearson_chi_squared(&normal_data, None, true).unwrap();
+/// let result = pearson_chi_squared(normal_data, None, true).unwrap();
 /// // p-value should be high for normal data
 /// assert!(result.p_value > 0.05);
 ///
 /// let uniform_data =
 ///     vec![2.0, 2.0, 2.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0];
-/// let result_uniform = pearson_chi_squared(&uniform_data, None, true).unwrap();
+/// let result_uniform = pearson_chi_squared(uniform_data, None, true).unwrap();
 /// // p-value should be low for non-normal data
 /// assert!(result_uniform.p_value < 0.05);
 /// ```
-pub fn pearson_chi_squared<T: Float>(
-    data: &[T],
+pub fn pearson_chi_squared<T: Float, I: IntoIterator<Item = T>>(
+    data: I,
     n_classes: Option<usize>,
     adjust: bool,
 ) -> Result<Computation<T>, Error> {
-    let clean_data: Vec<T> = data.iter().copied().filter(|v| !v.is_nan()).collect();
+    let clean_data: Vec<T> = data.into_iter().filter(|v| !v.is_nan()).collect();
     let n = clean_data.len();
 
     if n < 2 {

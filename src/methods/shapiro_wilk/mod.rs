@@ -1,5 +1,7 @@
 mod swilk;
 
+use std::iter::IntoIterator;
+
 use ndarray::Array1;
 use swilk::swilk;
 
@@ -12,8 +14,8 @@ use crate::{Computation, Error, Float};
 ///
 /// This function is generic and can operate on types `T` supported by [`num_traits::Float`].
 ///
-/// Takes one argument `data` which is a slice (`&[T]`) containing the data sample. This can be a
-/// [`Vec<T>`](Vec), an array [`[T; N]`](std::slice), or an [`ndarray::Array1<T>`](ndarray::Array1).
+/// Takes one argument `data` which is an iterator over floating-point numbers ([`impl
+/// IntoIterator<Item = T>`](IntoIterator)).
 ///
 /// The sample size of `data` must be between 3 and 5000.
 /// Also, the range of `data` must not be equal to 0.
@@ -26,7 +28,7 @@ use crate::{Computation, Error, Float};
 /// // Example with a sample that should be normal
 /// let normal_data: [f64; 10] = [1.2, 0.8, 1.5, 0.9, 1.0, 1.1, 0.7, 1.3, 1.4, 0.6];
 ///
-/// let result = shapiro_wilk(&normal_data).unwrap();
+/// let result = shapiro_wilk(normal_data).unwrap();
 ///
 /// assert!(result.p_value > 0.05); // Expect to not reject the null hypothesis
 ///
@@ -36,13 +38,13 @@ use crate::{Computation, Error, Float};
 ///     10.0, 10.0, 10.0,
 /// ];
 ///
-/// let result_uniform = shapiro_wilk(&uniform_data).unwrap();
+/// let result_uniform = shapiro_wilk(uniform_data).unwrap();
 ///
 /// assert!(result_uniform.p_value < 0.05); // Expect to reject the null hypothesis
 ///
 /// // Example of handling an error
 /// let small_data = [1.0, 2.0];
-/// let error_result = shapiro_wilk(&small_data);
+/// let error_result = shapiro_wilk(small_data);
 ///
 /// assert_eq!(
 ///     error_result,
@@ -52,7 +54,8 @@ use crate::{Computation, Error, Float};
 ///     })
 /// );
 /// ```
-pub fn shapiro_wilk<T: Float>(data: &[T]) -> Result<Computation<T>, Error> {
+pub fn shapiro_wilk<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Computation<T>, Error> {
+    let data: Vec<T> = data.into_iter().collect();
     let n = data.len();
 
     if n < 3 {
@@ -66,7 +69,7 @@ pub fn shapiro_wilk<T: Float>(data: &[T]) -> Result<Computation<T>, Error> {
     let init = false;
     let n1_in = -1;
 
-    let mut y_vec = data.to_vec();
+    let mut y_vec = data;
     y_vec.sort_by(|a, b| a.partial_cmp(b).unwrap());
     let mut y = Array1::from_vec(y_vec);
 

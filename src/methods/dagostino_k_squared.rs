@@ -1,3 +1,5 @@
+use std::iter::IntoIterator;
+
 use statrs::distribution::{ContinuousCDF, Normal};
 
 use crate::{Computation, Error, Float};
@@ -11,8 +13,8 @@ use crate::{Computation, Error, Float};
 /// that, under the null hypothesis, follows a standard normal distribution. This implementation
 /// performs a two-sided test.
 ///
-/// Takes one argument `data` which is a slice (`&[T]`) containing the data sample. This can be a
-/// [`Vec<T>`](Vec), an array [`[T; N]`](std::slice), or an [`ndarray::Array1<T>`](ndarray::Array1).
+/// Takes one argument `data` which is an iterator over floating-point numbers ([`impl
+/// IntoIterator<Item = T>`](IntoIterator)).
 ///
 /// The sample size of `data` must be between 8 and 46840.
 /// Also, the range of `data` must not be equal to 0.
@@ -23,18 +25,22 @@ use crate::{Computation, Error, Float};
 /// use normality::dagostino_k_squared;
 ///
 /// let normal_data = vec![-1.1, 0.2, -0.4, 0.0, -0.7, 1.2, -0.1, 0.8, 0.5, -0.9];
-/// let result = dagostino_k_squared(&normal_data).unwrap();
+/// let result = dagostino_k_squared(normal_data).unwrap();
 /// // p-value should be high for normal data
 /// assert!(result.p_value > 0.05);
 ///
 /// let uniform_data =
 ///     vec![2.0, 2.0, 2.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0];
-/// let result_uniform = dagostino_k_squared(&uniform_data).unwrap();
+/// let result_uniform = dagostino_k_squared(uniform_data).unwrap();
 /// // p-value should be low for non-normal data
 /// assert!(result_uniform.p_value < 0.05);
 /// ```
-pub fn dagostino_k_squared<T: Float>(data: &[T]) -> Result<Computation<T>, Error> {
+pub fn dagostino_k_squared<T: Float, I: IntoIterator<Item = T>>(
+    data: I,
+) -> Result<Computation<T>, Error> {
+    let data: Vec<T> = data.into_iter().collect();
     let n = data.len();
+
     if n < 8 {
         return Err(Error::InsufficientSampleSize {
             given: n,
