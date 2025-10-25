@@ -144,7 +144,9 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo test
+              run: cargo test
+              env:
+                  TEMP_DIR: ${{ runner.temp }}
 
     MSRV:
         runs-on: ubuntu-latest
