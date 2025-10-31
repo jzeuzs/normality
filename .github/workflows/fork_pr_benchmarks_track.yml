@@ -2,7 +2,7 @@ name: Fork PR Benchmarks (Track)
 
 on:
   workflow_run:
-    workflows: [Run Benchmarks]
+    workflows: [Fork PR Benchmarks (Run)]
     types: [completed]
 
 jobs:
@@ -49,6 +49,11 @@ jobs:
           --start-point-clone-thresholds \
           --start-point-reset \
           --testbed ubuntu-latest \
+          --threshold-measure latency \
+          --threshold-test percentage \
+          --threshold-min-sample-size 2 \
+          --threshold-upper-boundary 0.10 \
+          --thresholds-reset \
           --err \
           --adapter rust_gungraun \
           --github-actions '${{ secrets.GITHUB_TOKEN }}' \

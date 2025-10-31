@@ -1,3 +1,4 @@
+name: Benchmarks
 on:
   push:
     branches: [main]
@@ -28,7 +29,7 @@ jobs:
             jq '.packages[] | select(.name == "gungraun").version' |\
             tr -d '"'
             )
-            cargo binstall --no-confirm gungraun-runner --version $version
+            cargo binstall --no-confirm gungraun-runner --version $version --force
 
       - name: Install Valgrind
         run: sudo apt-get update && sudo apt-get install -y valgrind
@@ -45,9 +46,9 @@ jobs:
           --branch main \
           --testbed ubuntu-latest \
           --threshold-measure latency \
-          --threshold-test t_test \
-          --threshold-max-sample-size 64 \
-          --threshold-upper-boundary 0.99 \
+          --threshold-test percentage \
+          --threshold-min-sample-size 2 \
+          --threshold-upper-boundary 0.10 \
           --thresholds-reset \
           --err \
           --adapter rust_gungraun \
