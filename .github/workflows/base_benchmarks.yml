@@ -29,7 +29,7 @@ jobs:
             jq '.packages[] | select(.name == "gungraun").version' |\
             tr -d '"'
             )
-            cargo binstall --no-confirm gungraun-runner --version $version
+            cargo binstall --no-confirm gungraun-runner --version $version --force
 
       - name: Install Valgrind
         run: sudo apt-get update && sudo apt-get install -y valgrind
