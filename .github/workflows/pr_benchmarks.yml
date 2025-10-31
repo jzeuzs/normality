@@ -53,8 +53,8 @@ jobs:
           --testbed ubuntu-latest \
           --threshold-measure latency \
           --threshold-test t_test \
-          --threshold-max-sample-size 64 \
-          --threshold-upper-boundary 0.99 \
+          --threshold-min-sample-size 30 \
+          --threshold-upper-boundary 0.999 \
           --thresholds-reset \
           --err \
           --adapter rust_gungraun \
