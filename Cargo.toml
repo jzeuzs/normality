@@ -17,9 +17,15 @@ thiserror = "2.0.17"
 
 [dev-dependencies]
 assert_float_eq = "1.2.0"
+divan = "0.1.21"
+gungraun = "0.17.0"
 indoc = "2.0.6"
 nanoid = "0.4.0"
 pastey = "0.1.1"
 rand = "=0.8"
 statrs = "0.18.0"
 tempfile = "3.23.0"
+
+[[bench]]
+name = "bench"
+harness = false
