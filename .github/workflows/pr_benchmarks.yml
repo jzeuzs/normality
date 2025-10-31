@@ -52,9 +52,9 @@ jobs:
           --start-point-reset \
           --testbed ubuntu-latest \
           --threshold-measure latency \
-          --threshold-test t_test \
-          --threshold-min-sample-size 30 \
-          --threshold-upper-boundary 0.999 \
+          --threshold-test percentage \
+          --threshold-min-sample-size 2 \
+          --threshold-upper-boundary 0.10 \
           --thresholds-reset \
           --err \
           --adapter rust_gungraun \
