@@ -1,3 +1,4 @@
+name: PR Benchmarks
 on:
   pull_request:
     types: [opened, reopened, edited, synchronize]
@@ -21,6 +22,23 @@ jobs:
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Install cargo binstall
+        uses: taiki-e/install-action@cargo-binstall
+
+      - name: Install gungraun-runner
+        run: |
+            version=$(cargo metadata --format-version=1 |\
+            jq '.packages[] | select(.name == "gungraun").version' |\
+            tr -d '"'
+            )
+            cargo binstall --no-confirm gungraun-runner --version $version
+
+      - name: Install Valgrind
+        run: sudo apt-get update && sudo apt-get install -y valgrind
+
+      - name: Build
+        run: cargo build
+    
       - uses: bencherdev/bencher@main
       - name: Track PR Benchmarks with Bencher
         run: |

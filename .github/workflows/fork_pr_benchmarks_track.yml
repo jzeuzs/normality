@@ -1,4 +1,4 @@
-name: Track Benchmarks with Bencher
+name: Fork PR Benchmarks (Track)
 
 on:
   workflow_run:

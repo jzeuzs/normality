@@ -1,3 +1,4 @@
+name: PR Benchmarks (Closed)
 on:
   pull_request:
     types: [closed]
