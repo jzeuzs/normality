@@ -1,0 +1,38 @@
+on:
+  push:
+    branches: [main]
+
+jobs:
+  benchmark_base_branch:
+    name: Continuous Benchmarking with Bencher
+    permissions:
+      checks: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+            toolchain: stable
+    
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - uses: bencherdev/bencher@main
+      - name: Track base branch benchmarks with Bencher
+        run: |
+          bencher run \
+          --project normality \
+          --token '${{ secrets.BENCHER_API_TOKEN }}' \
+          --branch main \
+          --testbed ubuntu-latest \
+          --threshold-measure latency \
+          --threshold-test t_test \
+          --threshold-max-sample-size 64 \
+          --threshold-upper-boundary 0.99 \
+          --thresholds-reset \
+          --err \
+          --adapter rust_gungraun \
+          --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+          cargo bench
