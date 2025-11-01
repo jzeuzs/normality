@@ -5,13 +5,14 @@ A Rust crate for assessing the normality of a data sample. It provides several c
 All test implementations are generic and can work with `f32` or `f64` data types. The implementations are ported from well-established algorithms found in popular R packages.
 
 ## Implemented Tests
-- [Shapiro-Wilk Test](https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test): One of the most powerful tests for normality.
-- [Lilliefors (Kolmogorov-Smirnov) Test](https://en.wikipedia.org/wiki/Lilliefors_test): A modification of the [K-S test](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test) for when population mean and variance are unknown.
-- [Anderson-Darling Test](https://en.wikipedia.org/wiki/Anderson%E2%80%93Darling_test): Gives more weight to the tails of the distribution.
-- [Jarque-Bera Test](https://en.wikipedia.org/wiki/Jarque%E2%80%93Bera_test): Tests whether the sample skewness and kurtosis match a normal distribution.
-- [Pearson Chi-squared Test](https://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test): A goodness-of-fit test that compares observed and expected frequencies.
-- [Cramer-von Mises Test](https://en.wikipedia.org/wiki/Cram%C3%A9r%E2%80%93von_Mises_criterion): An alternative EDF goodness-of-fit test.
-- [D'Agostino's K-squared Test](https://en.wikipedia.org/wiki/D%27Agostino%27s_K-squared_test): Tests for normality based on sample skewness.
+- [Shapiro-Wilk Test](https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test)
+- [Lilliefors (Kolmogorov-Smirnov) Test](https://en.wikipedia.org/wiki/Lilliefors_test)
+- [Anderson-Darling Test](https://en.wikipedia.org/wiki/Anderson%E2%80%93Darling_test)
+- [Jarque-Bera Test](https://en.wikipedia.org/wiki/Jarque%E2%80%93Bera_test)
+- [Pearson Chi-squared Test](https://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test)
+- [Cramer-von Mises Test](https://en.wikipedia.org/wiki/Cram%C3%A9r%E2%80%93von_Mises_criterion)
+- [D'Agostino's K-squared Test](https://en.wikipedia.org/wiki/D%27Agostino%27s_K-squared_test)
+- [Anscombe-Glynn Kurtosis Test](https://doi.org/10.1093/biomet/70.1.227)
 
 ## Installation
 Either run `cargo add normality` or add the crate to your `Cargo.toml`:

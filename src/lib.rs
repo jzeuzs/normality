@@ -20,6 +20,7 @@ use std::iter::Sum;
 pub use error::Error;
 pub use methods::{
     anderson_darling,
+    anscombe_glynn,
     dagostino_k_squared,
     jarque_bera,
     lilliefors,
