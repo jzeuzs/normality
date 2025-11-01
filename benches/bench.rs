@@ -6,8 +6,10 @@ use rand::prelude::Distribution;
 use rand::rngs::StdRng;
 use statrs::distribution::Normal;
 
+const SEED: u64 = 123;
+
 fn sample_data(n: usize) -> Vec<f64> {
-    let mut rng = StdRng::seed_from_u64(12345);
+    let mut rng = StdRng::seed_from_u64(SEED);
     let dist = Normal::new(0.0, 1.0).unwrap();
     let sample: Vec<f64> = dist.sample_iter(&mut rng).take(n).collect();
 

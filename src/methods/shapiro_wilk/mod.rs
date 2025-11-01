@@ -70,7 +70,7 @@ pub fn shapiro_wilk<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Comp
     let n1_in = -1;
 
     let mut y_vec = data;
-    y_vec.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    y_vec.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
     let mut y = Array1::from_vec(y_vec);
 
     let median_val = y[n / 2];

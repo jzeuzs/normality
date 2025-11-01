@@ -46,7 +46,7 @@ pub fn lilliefors<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Comput
     }
 
     let mut sorted_data = data;
-    sorted_data.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    sorted_data.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
 
     let n_t = T::from(n).unwrap();
     let sum = sorted_data.iter().fold(T::zero(), |acc, &x| acc + x);
