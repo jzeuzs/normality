@@ -30,6 +30,15 @@ fn anderson_darling(data: Vec<f64>) {
 #[bench::small(sample_data(100))]
 #[bench::medium(sample_data(1000))]
 #[bench::large(sample_data(5000))]
+fn anscombe_glynn(data: Vec<f64>) {
+    let _ = black_box(normality::anscombe_glynn(data));
+}
+
+#[library_benchmark]
+#[bench::tiny(sample_data(10))]
+#[bench::small(sample_data(100))]
+#[bench::medium(sample_data(1000))]
+#[bench::large(sample_data(5000))]
 fn dagostino_k_squared(data: Vec<f64>) {
     let _ = black_box(normality::dagostino_k_squared(data));
 }
@@ -72,7 +81,7 @@ fn shapiro_wilk(data: Vec<f64>) {
 
 library_benchmark_group!(
     name = benches;
-    benchmarks = anderson_darling, dagostino_k_squared, jarque_bera, lilliefors, pearson_chi_squared, shapiro_wilk
+    benchmarks = anderson_darling, anscombe_glynn, dagostino_k_squared, jarque_bera, lilliefors, pearson_chi_squared, shapiro_wilk
 );
 
 main!(library_benchmark_groups = benches);
