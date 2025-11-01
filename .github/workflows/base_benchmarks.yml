@@ -45,11 +45,12 @@ jobs:
           --token '${{ secrets.BENCHER_API_TOKEN }}' \
           --branch main \
           --testbed ubuntu-latest \
-          --threshold-measure latency \
-          --threshold-test percentage \
-          --threshold-min-sample-size 2 \
-          --threshold-upper-boundary 0.10 \
-          --thresholds-reset \
+          --threshold-measure instructions \
+          --threshold-measure l1-hits \
+          --threshold-measure ll-hits \
+          --threshold-measure ram-hits \
+          --threshold-measure total-read-write \
+          --threshold-measure estimated-cycles \
           --err \
           --adapter rust_gungraun \
           --github-actions '${{ secrets.GITHUB_TOKEN }}' \

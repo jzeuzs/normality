@@ -51,6 +51,12 @@ jobs:
           --start-point-clone-thresholds \
           --start-point-reset \
           --testbed ubuntu-latest \
+          --threshold-measure instructions \
+          --threshold-measure l1-hits \
+          --threshold-measure ll-hits \
+          --threshold-measure ram-hits \
+          --threshold-measure total-read-write \
+          --threshold-measure estimated-cycles \
           --err \
           --adapter rust_gungraun \
           --github-actions '${{ secrets.GITHUB_TOKEN }}' \
