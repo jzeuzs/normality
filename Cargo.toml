@@ -10,7 +10,7 @@ keywords = ["statistics", "normality", "normality-test", "hypothesis-testing"]
 categories = ["algorithms", "mathematics"]
 
 [dependencies]
-ndarray = "0.16.1"
+ndarray = "0.17.0"
 num-traits = "0.2.19"
 statrs = "0.18.0"
 thiserror = "2.0.17"
