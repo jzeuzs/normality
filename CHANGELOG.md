@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1](https://github.com/jzeuzs/normality/compare/v1.1.0...v1.1.1) - 2025-11-21
+
+### Fixed
+
+- *(deps)* update rust crate ndarray to 0.17.0 ([#20](https://github.com/jzeuzs/normality/pull/20))
+
+### Other
+
+- *(deps)* update actions/checkout action to v6 ([#23](https://github.com/jzeuzs/normality/pull/23))
+- *(deps)* update rust crate pastey to 0.2.0 ([#22](https://github.com/jzeuzs/normality/pull/22))
+
 ## [1.1.0](https://github.com/jzeuzs/normality/compare/v1.0.0...v1.1.0) - 2025-11-01
 
 ### Added
