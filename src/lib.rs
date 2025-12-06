@@ -18,15 +18,7 @@ mod methods;
 use std::iter::Sum;
 
 pub use error::Error;
-pub use methods::{
-    anderson_darling,
-    anscombe_glynn,
-    dagostino_k_squared,
-    jarque_bera,
-    lilliefors,
-    pearson_chi_squared,
-    shapiro_wilk,
-};
+pub use methods::*;
 use num_traits::{Float as Float_, Num, NumAssign, NumOps};
 
 /// A convenience trait combining bounds frequently used for floating-point computations.

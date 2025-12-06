@@ -3,14 +3,31 @@ use std::fs::remove_dir_all;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::Once;
 
 use nanoid::nanoid;
+use rand::SeedableRng;
 use rand::distributions::Distribution;
+use rand::rngs::StdRng;
 use statrs::distribution::{Normal, Uniform};
 use tempfile::{Builder, tempdir};
 
+static INIT: Once = Once::new();
+
+fn install_r_packages() {
+    INIT.call_once(|| {
+        Command::new("Rscript")
+            .arg("-e")
+            .arg("\"install.packages(c('nortest', 'moments', 'energy', 'CompQuadForm'))\"")
+            .spawn()
+            .unwrap()
+            .wait()
+            .unwrap();
+    });
+}
+
 fn sample_norm_data(n: usize) -> Vec<f64> {
-    let mut rng = rand::thread_rng();
+    let mut rng = StdRng::from_entropy();
     let dist = Normal::new(0.0, 1.0).unwrap();
     let sample: Vec<f64> = dist.sample_iter(&mut rng).take(n).collect();
 
@@ -18,7 +35,7 @@ fn sample_norm_data(n: usize) -> Vec<f64> {
 }
 
 fn sample_unif_data(n: usize) -> Vec<f64> {
-    let mut rng = rand::thread_rng();
+    let mut rng = StdRng::from_entropy();
     let dist = Uniform::new(0.0, 1.0).unwrap();
     let sample: Vec<f64> = dist.sample_iter(&mut rng).take(n).collect();
 
@@ -70,11 +87,15 @@ macro_rules! gen_accuracy_tests {
             lilliefors,
             pearson_chi_squared,
             shapiro_wilk,
+            energy_test,
+            EnergyTestMethod
         };
 
         pastey::paste! {$(
             #[test]
             fn [<shapiro_wilk_accuracy_ $n>]() {
+                install_r_packages();
+
                 let norm = sample_norm_data($n);
                 let unif = sample_unif_data($n);
 
@@ -126,6 +147,8 @@ macro_rules! gen_accuracy_tests {
 
             #[test]
             fn [<lilliefors_accuracy_ $n>]() {
+                install_r_packages();
+
                 let norm = sample_norm_data($n);
                 let unif = sample_unif_data($n);
 
@@ -179,6 +202,8 @@ macro_rules! gen_accuracy_tests {
 
             #[test]
             fn [<anderson_darling_accuracy_ $n>]() {
+                install_r_packages();
+
                 let norm = sample_norm_data($n);
                 let unif = sample_unif_data($n);
 
@@ -232,6 +257,8 @@ macro_rules! gen_accuracy_tests {
 
             #[test]
             fn [<jarque_bera_accuracy_ $n>]() {
+                install_r_packages();
+
                 let norm = sample_norm_data($n);
                 let unif = sample_unif_data($n);
 
@@ -280,6 +307,8 @@ macro_rules! gen_accuracy_tests {
 
             #[test]
             fn [<dagostino_k_squared_accuracy_ $n>]() {
+                install_r_packages();
+
                 let norm = sample_norm_data($n);
                 let unif = sample_unif_data($n);
 
@@ -328,6 +357,8 @@ macro_rules! gen_accuracy_tests {
 
             #[test]
             fn [<pearson_chi_squared_accuracy_ $n>]() {
+                install_r_packages();
+
                 let norm = sample_norm_data($n);
                 let unif = sample_unif_data($n);
 
@@ -376,6 +407,8 @@ macro_rules! gen_accuracy_tests {
 
             #[test]
             fn [<anscombe_glynn_accuracy_ $n>]() {
+                install_r_packages();
+
                 let norm = sample_norm_data($n);
                 let unif = sample_unif_data($n);
 
@@ -420,6 +453,107 @@ macro_rules! gen_accuracy_tests {
                 assert_float_absolute_eq!(r_norm_p, norm_result.p_value);
                 assert_float_absolute_eq!(r_unif_stat, unif_result.statistic);
                 assert_float_absolute_eq!(r_unif_p, unif_result.p_value);
+            }
+
+            #[test]
+            fn [<energy_test_asymptotic_accuracy_ $n>]() {
+                install_r_packages();
+
+                let norm = sample_norm_data($n);
+                let unif = sample_unif_data($n);
+
+                let norm_r = data_to_r(&norm);
+                let unif_r = data_to_r(&unif);
+
+                let r_code = formatdoc! {"
+                    library(energy)
+
+                    norm <- {norm}
+                    unif <- {unif}
+
+                    norm_result <- normal.test(norm, method = \"limit\")
+                    unif_result <- normal.test(unif, method = \"limit\")
+
+                    print(paste(norm_result$statistic, norm_result$p.value))
+                    print(paste(unif_result$statistic, unif_result$p.value))
+                ",
+                    norm = norm_r,
+                    unif = unif_r
+                };
+
+                let [(r_norm_stat, r_norm_p), (r_unif_stat, r_unif_p), ..] = execute_r(r_code)
+                    .split("\n")
+                    .map(|line| {
+                        let values = line.split_whitespace().skip(1).collect::<Vec<_>>();
+
+                        (
+                            f64::from_str(&values[0].replace('"', "")).unwrap(),
+                            f64::from_str(&values[1].replace('"', "")).unwrap(),
+                        )
+                    })
+                    .collect::<Vec<_>>()[..]
+                else {
+                    unreachable!()
+                };
+
+                let norm_result = energy_test(norm, EnergyTestMethod::Asymptotic).unwrap();
+                let unif_result = energy_test(unif, EnergyTestMethod::Asymptotic).unwrap();
+
+                // Integral approximation
+                assert_float_absolute_eq!(r_norm_stat, norm_result.statistic, 1e-3);
+                assert_float_absolute_eq!(r_norm_p, norm_result.p_value, 1e-3);
+                assert_float_absolute_eq!(r_unif_stat, unif_result.statistic, 1e-3);
+                assert_float_absolute_eq!(r_unif_p, unif_result.p_value, 1e-3);
+            }
+
+            #[test]
+            fn [<energy_test_monte_carlo_accuracy_ $n>]() {
+                install_r_packages();
+
+                let norm = sample_norm_data($n);
+                let unif = sample_unif_data($n);
+
+                let norm_r = data_to_r(&norm);
+                let unif_r = data_to_r(&unif);
+
+                let r_code = formatdoc! {"
+                    library(energy)
+
+                    norm <- {norm}
+                    unif <- {unif}
+
+                    norm_result <- normal.test(norm, R = 1000)
+                    unif_result <- normal.test(unif, R = 1000)
+
+                    print(paste(norm_result$statistic, norm_result$p.value))
+                    print(paste(unif_result$statistic, unif_result$p.value))
+                ",
+                    norm = norm_r,
+                    unif = unif_r
+                };
+
+                let [(r_norm_stat, r_norm_p), (r_unif_stat, r_unif_p), ..] = execute_r(r_code)
+                    .split("\n")
+                    .map(|line| {
+                        let values = line.split_whitespace().skip(1).collect::<Vec<_>>();
+
+                        (
+                            f64::from_str(&values[0].replace('"', "")).unwrap(),
+                            f64::from_str(&values[1].replace('"', "")).unwrap(),
+                        )
+                    })
+                    .collect::<Vec<_>>()[..]
+                else {
+                    unreachable!()
+                };
+
+                let norm_result = energy_test(norm, EnergyTestMethod::MonteCarlo(1000)).unwrap();
+                let unif_result = energy_test(unif, EnergyTestMethod::MonteCarlo(1000)).unwrap();
+
+                assert_float_absolute_eq!(r_norm_stat, norm_result.statistic, 1e-1);
+                assert_float_absolute_eq!(r_norm_p, norm_result.p_value, 1e-1);
+                assert_float_absolute_eq!(r_unif_stat, unif_result.statistic, 1e-1);
+                assert_float_absolute_eq!(r_unif_p, unif_result.p_value, 1e-1);
             }
         )+}
     };
