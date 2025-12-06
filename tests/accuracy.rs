@@ -1,3 +1,5 @@
+//! Integration tests for the energy test is flaky
+
 use std::env;
 use std::fs::remove_dir_all;
 use std::io::Write;
