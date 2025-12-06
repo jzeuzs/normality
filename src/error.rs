@@ -2,6 +2,7 @@ use thiserror::Error as ThisError;
 
 /// Represents errors that can occur during a normality test computation.
 #[derive(Debug, ThisError, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
     /// The input sample size is too small for the test.
     #[error("Sample size must be at least {needed}, but was given {given}.")]

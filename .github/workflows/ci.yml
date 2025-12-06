@@ -47,7 +47,7 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 5
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
               
             - name: Doc test
               run: cargo test --doc
@@ -93,7 +93,7 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 5
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
               
             - name: Doc test
               run: cargo test --doc
@@ -137,7 +137,7 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 5
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
               
             - name: Doc test
               run: cargo test --doc
@@ -181,7 +181,7 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: cargo nextest run --retries 5
+              run: cargo nextest run
               env:
                   TEMP_DIR: ${{ runner.temp }}
                   

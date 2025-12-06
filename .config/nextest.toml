@@ -1,0 +1,4 @@
+[[profile.default.overrides]]
+filter = 'test(/^energy_test_asymptotic_*/)'
+fail-fast = false
+retries = 7
