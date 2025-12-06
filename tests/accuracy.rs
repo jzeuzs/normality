@@ -505,7 +505,7 @@ macro_rules! gen_accuracy_tests {
                 assert_float_absolute_eq!(r_unif_stat, unif_result.statistic, 1e-3);
                 assert_float_absolute_eq!(r_unif_p, unif_result.p_value, 1e-3);
             }
-            
+
             #[test]
             fn [<energy_test_monte_carlo_accuracy_ $n>]() {
                 install_r_packages();

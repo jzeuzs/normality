@@ -66,7 +66,8 @@ pub(crate) fn significance_level(statistic: f64, eigenvalues: &[f64]) -> f64 {
 
     // We integrate the transformed function from 0 to 1.
     // This covers the original range of 0 to infinity.
-    let result = NewtonCotes::new(|t| transformed_integrand(t, &params)).integrate(0.0, 1.0).unwrap();
+    let result =
+        NewtonCotes::new(|t| transformed_integrand(t, &params)).integrate(0.0, 1.0).unwrap();
 
     // P(Q > x)
     let p_val = 0.5 + result / PI;
