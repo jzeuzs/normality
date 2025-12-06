@@ -13,6 +13,7 @@ All test implementations are generic and can work with `f32` or `f64` data types
 - [Cramer-von Mises Test](https://en.wikipedia.org/wiki/Cram%C3%A9r%E2%80%93von_Mises_criterion)
 - [D'Agostino's K-squared Test](https://en.wikipedia.org/wiki/D%27Agostino%27s_K-squared_test)
 - [Anscombe-Glynn Kurtosis Test](https://doi.org/10.1093/biomet/70.1.227)
+- [Energy Test](https://www.sciencedirect.com/science/article/pii/S0378375820301154)
 
 ## Installation
 Either run `cargo add normality` or add the crate to your `Cargo.toml`:

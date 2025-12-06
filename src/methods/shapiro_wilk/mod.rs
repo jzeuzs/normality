@@ -76,7 +76,7 @@ pub fn shapiro_wilk<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Comp
     let median_val = y[n / 2];
     y.mapv_inplace(|v| v - median_val);
 
-    let (w, pw, ifault) = swilk(y.view(), a.view_mut(), init, n1_in);
+    let (w, pw, ifault) = swilk(&y.view(), a.view_mut(), init, n1_in);
 
     if ifault != 0 {
         return match ifault {

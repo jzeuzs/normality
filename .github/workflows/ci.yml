@@ -18,6 +18,11 @@ jobs:
               uses: dtolnay/rust-toolchain@master
               with:
                   toolchain: stable
+                  
+            - name: Install nextest
+              uses: taiki-e/install-action@v2
+              with:
+                tool: nextest
 
             - name: Add problem matchers
               shell: bash
@@ -32,6 +37,8 @@ jobs:
                   extra-packages: |
                       any::nortest
                       any::moments
+                      any::energy
+                      any::CompQuadForm
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -40,7 +47,10 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo test
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 5
+              
+            - name: Doc test
+              run: cargo test --doc
 
     nightly:
         name: Test (nightly)
@@ -54,6 +64,11 @@ jobs:
               uses: dtolnay/rust-toolchain@master
               with:
                   toolchain: ${{ env.rust_nightly }}
+                  
+            - name: Install nextest
+              uses: taiki-e/install-action@v2
+              with:
+                tool: nextest
 
             - name: Add problem matchers
               shell: bash
@@ -68,6 +83,8 @@ jobs:
                   extra-packages: |
                       any::nortest
                       any::moments
+                      any::energy
+                      any::CompQuadForm
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -76,7 +93,10 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo test
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 5
+              
+            - name: Doc test
+              run: cargo test --doc
 
     macOS:
         name: Test (macOS)
@@ -88,6 +108,11 @@ jobs:
 
             - name: Install toolchain
               uses: dtolnay/rust-toolchain@stable
+            
+            - name: Install nextest
+              uses: taiki-e/install-action@v2
+              with:
+                tool: nextest
 
             - name: Add problem matchers
               shell: bash
@@ -102,6 +127,8 @@ jobs:
                   extra-packages: |
                       any::nortest
                       any::moments
+                      any::energy
+                      any::CompQuadForm
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -110,7 +137,10 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo test
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 5
+              
+            - name: Doc test
+              run: cargo test --doc
 
     windows:
         name: Test (Windows)
@@ -122,6 +152,11 @@ jobs:
 
             - name: Install toolchain
               uses: dtolnay/rust-toolchain@stable
+              
+            - name: Install nextest
+              uses: taiki-e/install-action@v2
+              with:
+                tool: nextest
 
             - name: Add problem matchers
               shell: bash
@@ -136,6 +171,8 @@ jobs:
                   extra-packages: |
                       any::nortest
                       any::moments
+                      any::energy
+                      any::CompQuadForm
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -144,9 +181,12 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: cargo test
+              run: cargo nextest run --retries 5
               env:
                   TEMP_DIR: ${{ runner.temp }}
+                  
+            - name: Doc test
+              run: cargo test --doc
 
     MSRV:
         runs-on: ubuntu-latest

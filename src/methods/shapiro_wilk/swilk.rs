@@ -104,14 +104,14 @@ fn gscale(test: i32, other: i32) -> (i32, Array1<f32>, i32) {
     // loop_m can only increase hence "safe" while
     while loop_m <= m {
         if part_no == 0 {
-            let l1out = frqadd(a1.view_mut(), a2.view(), len2, n2b1);
+            let l1out = frqadd(a1.view_mut(), &a2.view(), len2, n2b1);
             len1 += n;
             len3 = imply(a1.view_mut(), l1out, len1, a3.view_mut(), loop_m);
             n2b1 += 1;
             loop_m += 1;
             part_no = 1;
         } else {
-            let l2out = frqadd(a2.view_mut(), a3.view(), len3, n2b2);
+            let l2out = frqadd(a2.view_mut(), &a3.view(), len3, n2b2);
             len2 += n - 1;
             // The return value is unused in the Cython code, assigned to `_`
             _ = imply(a2.view_mut(), l2out, len2, a3.view_mut(), loop_m);
@@ -188,7 +188,7 @@ fn start2(mut a: ArrayViewMut1<f32>, n: i32) {
 }
 
 /// Helper function for gscale function
-fn frqadd(mut a: ArrayViewMut1<f32>, b: ArrayView1<f32>, lenb: i32, offset: i32) -> i32 {
+fn frqadd(mut a: ArrayViewMut1<f32>, b: &ArrayView1<f32>, lenb: i32, offset: i32) -> i32 {
     let two = 2.0_f32;
     let lout = lenb + offset;
     let offset_usize = offset as usize;
@@ -398,7 +398,7 @@ fn poly<T: Float>(c: &[f64], nord: i32, x: T) -> T {
 /// the functionality. Otherwise n1 = n is used.
 #[allow(unused_assignments)]
 pub(crate) fn swilk<T: Float>(
-    x: ArrayView1<T>,
+    x: &ArrayView1<T>,
     mut a: ArrayViewMut1<T>,
     mut init: bool,
     n1_in: i32,
