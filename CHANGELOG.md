@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0](https://github.com/jzeuzs/normality/compare/v1.1.0...v2.0.0) - 2025-12-08
+
+### Added
+
+- [**breaking**] mark the `Error` type as `non_exhaustive` ([#26](https://github.com/jzeuzs/normality/pull/26))
+- implement energy test for normality ([#24](https://github.com/jzeuzs/normality/pull/24))
+
+### Fixed
+
+- *(deps)* remove unused dependency `gauss-quad`
+- *(deps)* update rust crate ndarray to 0.17.0 ([#20](https://github.com/jzeuzs/normality/pull/20))
+
+### Other
+
+- version bump ([#27](https://github.com/jzeuzs/normality/pull/27))
+- *(deps)* update actions/checkout action to v6 ([#23](https://github.com/jzeuzs/normality/pull/23))
+- *(deps)* update rust crate pastey to 0.2.0 ([#22](https://github.com/jzeuzs/normality/pull/22))
+
 ## [1.1.0](https://github.com/jzeuzs/normality/compare/v1.0.0...v1.1.0) - 2025-11-01
 
 ### Added
