@@ -20,7 +20,7 @@ Either run `cargo add normality` or add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-normality = "1.1.0"
+normality = "2"
 ```
 
 ## Example Usage
