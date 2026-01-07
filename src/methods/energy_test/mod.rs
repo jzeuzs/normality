@@ -211,7 +211,7 @@ pub fn energy_test<T: Float, I: IntoIterator<Item = T>>(
                 3.662914e-15,
             ];
 
-            imhof::significance_level(statistic_f64, &EIGENVALUES)
+            imhof::significance_level(statistic_f64, &EIGENVALUES)?
         },
     };
 
