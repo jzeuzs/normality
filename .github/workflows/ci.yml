@@ -49,6 +49,9 @@ jobs:
             - name: Test
               run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
               
+            - name: Test (all features)
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features
+              
             - name: Doc test
               run: cargo test --doc
 
@@ -95,6 +98,9 @@ jobs:
             - name: Test
               run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
               
+            - name: Test (all features)
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features
+              
             - name: Doc test
               run: cargo test --doc
 
@@ -138,6 +144,9 @@ jobs:
 
             - name: Test
               run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
+              
+            - name: Test (all features)
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features
               
             - name: Doc test
               run: cargo test --doc
@@ -185,6 +194,11 @@ jobs:
               env:
                   TEMP_DIR: ${{ runner.temp }}
                   
+            - name: Test (all features)
+              run: cargo nextest run --all-features
+              env:
+                  TEMP_DIR: ${{ runner.temp }}
+                  
             - name: Doc test
               run: cargo test --doc
 
@@ -207,3 +221,6 @@ jobs:
 
             - name: Check
               run: cargo check
+              
+            - name: Check (all features)
+              run: cargo check --all-features

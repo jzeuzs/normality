@@ -1,5 +1,7 @@
 use std::iter::IntoIterator;
 
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 use statrs::distribution::{ChiSquared, ContinuousCDF};
 
 use crate::{Computation, Error, Float};
@@ -51,16 +53,16 @@ pub fn jarque_bera<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Compu
     }
 
     let n_t = T::from(n).unwrap();
-    let m1 = data.iter().fold(T::zero(), |acc, &x| acc + x) / n_t; // Mean
-    let deviations: Vec<T> = data.iter().map(|&x| x - m1).collect();
-    let m2 = deviations.iter().map(|&d| d.powi(2)).sum::<T>() / n_t; // Variance (biased)
+    let mean = iter_if_parallel!(&data).copied().sum::<T>() / n_t;
+    let deviations: Vec<T> = iter_if_parallel!(&data).map(|&x| x - mean).collect();
+    let m2 = iter_if_parallel!(&deviations).map(|&d| d.powi(2)).sum::<T>() / n_t;
 
     if m2 < T::epsilon() {
         return Err(Error::ZeroRange);
     }
 
-    let m3 = deviations.iter().map(|&d| d.powi(3)).sum::<T>() / n_t;
-    let m4 = deviations.iter().map(|&d| d.powi(4)).sum::<T>() / n_t;
+    let m3 = iter_if_parallel!(&deviations).map(|&d| d.powi(3)).sum::<T>() / n_t;
+    let m4 = iter_if_parallel!(&deviations).map(|&d| d.powi(4)).sum::<T>() / n_t;
 
     let skewness = m3 / m2.powf(T::from(1.5).unwrap());
     let kurtosis = m4 / m2.powi(2);

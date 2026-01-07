@@ -1,5 +1,7 @@
 use std::iter::IntoIterator;
 
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 use statrs::distribution::{ContinuousCDF, Normal};
 
 use crate::{Computation, Error, Float};
@@ -46,15 +48,12 @@ pub fn lilliefors<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Comput
     }
 
     let mut sorted_data = data;
-    sorted_data.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
+    sort_if_parallel!(sorted_data.as_mut_slice(), |a, b| a.partial_cmp(b).unwrap());
 
     let n_t = T::from(n).unwrap();
-    let sum = sorted_data.iter().fold(T::zero(), |acc, &x| acc + x);
-    let mean = sum / n_t;
-
-    let variance =
-        sorted_data.iter().map(|&x| (x - mean).powi(2)).fold(T::zero(), |acc, x| acc + x)
-            / T::from(n - 1).unwrap();
+    let mean = iter_if_parallel!(&sorted_data).copied().sum::<T>() / n_t;
+    let variance = iter_if_parallel!(&sorted_data).map(|&x| (x - mean).powi(2)).sum::<T>()
+        / T::from(n - 1).unwrap();
 
     let std_dev = variance.sqrt();
 
@@ -63,8 +62,7 @@ pub fn lilliefors<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Comput
     }
 
     let standard_normal = Normal::new(0.0, 1.0)?;
-    let p_values: Vec<T> = sorted_data
-        .iter()
+    let p_values: Vec<T> = iter_if_parallel!(&sorted_data)
         .map(|&x| {
             let z = (x - mean) / std_dev;
             T::from(standard_normal.cdf(z.to_f64().unwrap())).unwrap()

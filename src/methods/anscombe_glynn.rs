@@ -1,3 +1,5 @@
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 use statrs::distribution::{ContinuousCDF, Normal};
 
 use crate::{Computation, Error, Float};
@@ -49,8 +51,18 @@ pub fn anscombe_glynn<T: Float, I: IntoIterator<Item = T>>(
     let n_t = T::from(n).unwrap();
     let n_sq = n_t * n_t;
 
-    let mean = data_vec.iter().copied().sum::<T>() / n_t;
+    let mean = iter_if_parallel!(&data_vec).copied().sum::<T>() / n_t;
 
+    #[cfg(feature = "parallel")]
+    let (sum_sq_devs, sum_fourth_devs) = data_vec
+        .par_iter()
+        .map(|&x| {
+            let dev = x - mean;
+            (dev.powi(2), dev.powi(4))
+        })
+        .reduce(|| (T::zero(), T::zero()), |a, b| (a.0 + b.0, a.1 + b.1));
+
+    #[cfg(not(feature = "parallel"))]
     let (sum_sq_devs, sum_fourth_devs) =
         data_vec.iter().fold((T::zero(), T::zero()), |(sum_sq, sum_fourth), &x| {
             let dev = x - mean;

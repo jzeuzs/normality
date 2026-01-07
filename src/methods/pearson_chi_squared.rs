@@ -1,5 +1,7 @@
 use std::iter::IntoIterator;
 
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 use statrs::distribution::{ChiSquared, ContinuousCDF, Normal};
 
 use crate::{Computation, Error, Float};
@@ -61,9 +63,9 @@ pub fn pearson_chi_squared<T: Float, I: IntoIterator<Item = T>>(
     let num_classes_t = T::from(num_classes).unwrap();
 
     // Calculate sample mean and standard deviation.
-    let mean = clean_data.iter().copied().sum::<T>() / n_t;
-    let variance =
-        clean_data.iter().map(|&x| (x - mean).powi(2)).sum::<T>() / T::from(n - 1).unwrap();
+    let mean = iter_if_parallel!(&clean_data).copied().sum::<T>() / n_t;
+    let variance = iter_if_parallel!(&clean_data).map(|&x| (x - mean).powi(2)).sum::<T>()
+        / T::from(n - 1).unwrap();
 
     let std_dev = variance.sqrt();
 
@@ -100,7 +102,7 @@ pub fn pearson_chi_squared<T: Float, I: IntoIterator<Item = T>>(
 
     if df < 1 {
         // The test is not valid if degrees of freedom is less than 1.
-        return Err(Error::Other("Degrees of freedom is less than 1".to_string())); // Using a generic code for invalid df.
+        return Err(Error::Other("Degrees of freedom is less than 1".to_string()));
     }
 
     // Calculate p-value from the chi-squared distribution.
