@@ -289,10 +289,7 @@ fn calculate_energy_statistic_internal<T: Float>(data: &mut [T]) -> Result<T, Er
     Ok(statistic)
 }
 
-fn run_monte_carlo_p_value<T>(n: usize, observed_stat: T, replicates: usize) -> f64
-where
-    T: Float + Sum,
-{
+fn run_monte_carlo_p_value<T: Float>(n: usize, observed_stat: T, replicates: usize) -> f64 {
     #[allow(unused_assignments)]
     let mut count = 0;
 
