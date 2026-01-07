@@ -1,7 +1,7 @@
 use thiserror::Error as ThisError;
 
 /// Represents errors that can occur during a normality test computation.
-#[derive(Debug, ThisError, PartialEq, Eq)]
+#[derive(Debug, ThisError, PartialEq)]
 #[non_exhaustive]
 pub enum Error {
     /// The input sample size is too small for the test.
@@ -29,6 +29,10 @@ pub enum Error {
     /// See [`statrs::distribution::GammaError`].
     #[error("{0}")]
     GammaError(#[from] statrs::distribution::GammaError),
+
+    /// See [`eqsolver::SolverError`].
+    #[error("{0}")]
+    IntegrationError(#[from] eqsolver::SolverError),
 
     /// Other errors.
     #[error("{0}")]

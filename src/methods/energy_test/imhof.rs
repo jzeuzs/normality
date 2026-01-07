@@ -2,6 +2,8 @@ use std::f64::consts::PI;
 
 use eqsolver::integrators::NewtonCotes;
 
+use crate::Error;
+
 struct ImhofParams<'a> {
     q: f64,
     lambda: &'a [f64],
@@ -58,7 +60,7 @@ fn transformed_integrand(t: f64, params: &ImhofParams) -> f64 {
 /// Computes P(Q > q) using Imhof's method.
 ///
 /// Formula: P(Q > x) = 1/2 + 1/pi * integral_0^inf (sin(theta(u)) / (u * rho(u))) du
-pub(crate) fn significance_level(statistic: f64, eigenvalues: &[f64]) -> f64 {
+pub(crate) fn significance_level(statistic: f64, eigenvalues: &[f64]) -> Result<f64, Error> {
     let params = ImhofParams {
         q: statistic,
         lambda: eigenvalues,
@@ -66,12 +68,11 @@ pub(crate) fn significance_level(statistic: f64, eigenvalues: &[f64]) -> f64 {
 
     // We integrate the transformed function from 0 to 1.
     // This covers the original range of 0 to infinity.
-    let result =
-        NewtonCotes::new(|t| transformed_integrand(t, &params)).integrate(0.0, 1.0).unwrap();
+    let result = NewtonCotes::new(|t| transformed_integrand(t, &params)).integrate(0.0, 1.0)?;
 
     // P(Q > x)
     let p_val = 0.5 + result / PI;
 
     // Clamp to valid probability range [0, 1]
-    p_val.clamp(0.0, 1.0)
+    Ok(p_val.clamp(0.0, 1.0))
 }
