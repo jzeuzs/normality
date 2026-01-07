@@ -1,5 +1,9 @@
 # normality
 
+[![Crates.io Version](https://img.shields.io/crates/v/normality)](https://crates.io/crates/normality)
+[![Documentation](https://docs.rs/normality/badge.svg)](https://docs.rs/normality)
+[![License](https://img.shields.io/crates/l/normality.svg)](./LICENSE)
+
 A Rust crate for assessing the normality of a data sample. It provides several common statistical tests to determine if a set of data is likely drawn from a normal distribution.
 
 All test implementations are generic and can work with `f32` or `f64` data types. The implementations are ported from well-established algorithms found in popular R packages.
@@ -10,7 +14,6 @@ All test implementations are generic and can work with `f32` or `f64` data types
 - [Anderson-Darling Test](https://en.wikipedia.org/wiki/Anderson%E2%80%93Darling_test)
 - [Jarque-Bera Test](https://en.wikipedia.org/wiki/Jarque%E2%80%93Bera_test)
 - [Pearson Chi-squared Test](https://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test)
-- [Cramer-von Mises Test](https://en.wikipedia.org/wiki/Cram%C3%A9r%E2%80%93von_Mises_criterion)
 - [D'Agostino's K-squared Test](https://en.wikipedia.org/wiki/D%27Agostino%27s_K-squared_test)
 - [Anscombe-Glynn Kurtosis Test](https://doi.org/10.1093/biomet/70.1.227)
 - [Energy Test](https://www.sciencedirect.com/science/article/pii/S0378375820301154)
@@ -21,6 +24,9 @@ Either run `cargo add normality` or add the crate to your `Cargo.toml`:
 ```toml
 [dependencies]
 normality = "2"
+
+# To enable parallel execution for faster performance on large data:
+# normality = { version = "2", features = ["parallel"] }
 ```
 
 ## Example Usage
@@ -49,6 +55,18 @@ fn main() -> Result<(), Error> {
     Ok(())
 }
 ```
+
+## Parallelism
+This crate supports optional parallelism via the [`rayon`](https://crates.io/crates/rayon) crate. This can significantly improve performance for large datasets by parallelizing sorting and statistical calculations.
+
+To enable parallelism, add the `parallel` feature to your `Cargo.toml`:
+
+```toml
+[dependencies]
+normality = { version = "2", features = ["parallel"] }
+```
+
+When enabled, functions will automatically use parallel iterators and parallel sorting algorithms. No changes to your code are required.
 
 ## Accuracy
 The accuracy of the implemented tests has been verified against their R equivalents. Running the integration tests for this crate requires a local installation of R and for the `Rscript` executable to be available in the system's PATH.

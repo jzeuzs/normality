@@ -3,9 +3,9 @@ mod imhof;
 use std::f64::consts::PI;
 use std::iter::Sum;
 
-use rand::SeedableRng;
 use rand::distributions::Distribution;
-use rand::rngs::StdRng;
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 use statrs::distribution::{Continuous, ContinuousCDF, Normal};
 
 use crate::{Computation, Error, Float};
@@ -228,40 +228,57 @@ fn calculate_energy_statistic_internal<T: Float>(data: &mut [T]) -> Result<T, Er
 
     let n = data.len();
     let n_t = T::from(n).unwrap();
-    let sum = data.iter().copied().sum::<T>();
+    let sum: T = iter_if_parallel!(data).copied().sum();
     let mean = sum / n_t;
-    let variance = data.iter().map(|&x| (x - mean).powi(2)).sum::<T>() / T::from(n - 1).unwrap();
+    let variance: T =
+        iter_if_parallel!(data).map(|&x| (x - mean).powi(2)).sum::<T>() / T::from(n - 1).unwrap();
+
     let std_dev = variance.sqrt();
 
     if std_dev <= T::zero() {
         return Err(Error::ZeroRange);
     }
 
-    for x in data.iter_mut() {
-        *x = (*x - mean) / std_dev;
-    }
+    #[cfg(feature = "parallel")]
+    data.par_iter_mut().for_each(|x| *x = (*x - mean) / std_dev);
 
-    data.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
+    #[cfg(not(feature = "parallel"))]
+    data.iter_mut().for_each(|x| *x = (*x - mean) / std_dev);
+
+    sort_if_parallel!(data, |a, b| a.partial_cmp(b).unwrap());
 
     let standard_normal = Normal::new(0.0, 1.0).unwrap();
-    let mut sum_term_1 = T::zero();
-    let mut sum_term_k = T::zero();
 
-    for (i, &y) in data.iter().enumerate() {
-        let y_f64 = y.to_f64().unwrap();
+    #[cfg(feature = "parallel")]
+    let (sum_term_1, sum_term_k) = data
+        .par_iter()
+        .enumerate()
+        .map(|(i, &y)| {
+            let y_f64 = y.to_f64().unwrap();
+            let phi = T::from(standard_normal.cdf(y_f64)).unwrap();
+            let pdf = T::from(standard_normal.pdf(y_f64)).unwrap();
 
-        // Term 1: 2 * y * Phi(y) + 2 * phi(y)
-        let phi = T::from(standard_normal.cdf(y_f64)).unwrap();
-        let pdf = T::from(standard_normal.pdf(y_f64)).unwrap();
+            let term1 = (T::from(2.0).unwrap() * y * phi) + (T::from(2.0).unwrap() * pdf);
 
-        sum_term_1 = sum_term_1 + (T::from(2.0).unwrap() * y * phi) + (T::from(2.0).unwrap() * pdf);
+            // K_i = (1 - n) + 2 * i (0-indexed)
+            let k_i = T::from(1.0 - (n as f64) + 2.0 * (i as f64)).unwrap();
+            let termk = k_i * y;
+            (term1, termk)
+        })
+        .reduce(|| (T::zero(), T::zero()), |a, b| (a.0 + b.0, a.1 + b.1));
 
-        // Term K: K_i * y_i
-        // K_i = (1 - n) + 2 * i (0-indexed)
-        // In R it's 1-indexed so seq(1-n, ..., 2) matches this.
-        let k_i = T::from(1.0 - (n as f64) + 2.0 * (i as f64)).unwrap();
-        sum_term_k += k_i * y;
-    }
+    #[cfg(not(feature = "parallel"))]
+    let (sum_term_1, sum_term_k) =
+        data.iter().enumerate().fold((T::zero(), T::zero()), |acc, (i, &y)| {
+            let y_f64 = y.to_f64().unwrap();
+            let phi = T::from(standard_normal.cdf(y_f64)).unwrap();
+            let pdf = T::from(standard_normal.pdf(y_f64)).unwrap();
+
+            let term1 = (T::from(2.0).unwrap() * y * phi) + (T::from(2.0).unwrap() * pdf);
+            let k_i = T::from(1.0 - (n as f64) + 2.0 * (i as f64)).unwrap();
+            let termk = k_i * y;
+            (acc.0 + term1, acc.1 + termk)
+        });
 
     let sqrt_pi = T::from(PI.sqrt()).unwrap();
     let term_2 = n_t / sqrt_pi;
@@ -276,20 +293,45 @@ fn run_monte_carlo_p_value<T>(n: usize, observed_stat: T, replicates: usize) -> 
 where
     T: Float + Sum,
 {
-    let mut rng = StdRng::from_entropy();
-    let normal_dist = Normal::new(0.0, 1.0).unwrap();
+    #[allow(unused_assignments)]
     let mut count = 0;
-    let mut buffer = vec![T::zero(); n];
 
-    for _ in 0..replicates {
-        for x in &mut buffer {
-            *x = T::from(normal_dist.sample(&mut rng)).unwrap();
-        }
+    #[cfg(feature = "parallel")]
+    {
+        count = (0..replicates)
+            .into_par_iter()
+            .map(|_| {
+                let mut rng = rand::thread_rng(); // Use thread-local RNG
+                let normal_dist = Normal::new(0.0, 1.0).unwrap();
+                let mut buffer = vec![T::zero(); n];
+                for x in &mut buffer {
+                    *x = T::from(normal_dist.sample(&mut rng)).unwrap();
+                }
 
-        let sim_stat = calculate_energy_statistic_internal(&mut buffer).unwrap();
+                let sim_stat = calculate_energy_statistic_internal(&mut buffer).unwrap();
+                i32::from(sim_stat >= observed_stat)
+            })
+            .sum();
+    }
 
-        if sim_stat >= observed_stat {
-            count += 1;
+    #[cfg(not(feature = "parallel"))]
+    {
+        use rand::SeedableRng;
+        use rand::rngs::StdRng;
+
+        let mut rng = StdRng::from_entropy();
+        let normal_dist = Normal::new(0.0, 1.0).unwrap();
+        let mut buffer = vec![T::zero(); n];
+
+        for _ in 0..replicates {
+            for x in &mut buffer {
+                *x = T::from(normal_dist.sample(&mut rng)).unwrap();
+            }
+
+            let sim_stat = calculate_energy_statistic_internal(&mut buffer).unwrap();
+            if sim_stat >= observed_stat {
+                count += 1;
+            }
         }
     }
 

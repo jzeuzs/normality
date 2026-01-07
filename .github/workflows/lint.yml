@@ -24,6 +24,9 @@ jobs:
 
             - name: Run clippy
               run: cargo clippy --tests
+              
+            - name: Run clippy (all features)
+              run: cargo clippy --tests --all-features
 
     rustfmt:
         name: Format

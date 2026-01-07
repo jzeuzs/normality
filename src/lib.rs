@@ -12,6 +12,9 @@
     clippy::missing_errors_doc
 )]
 
+#[macro_use]
+pub(crate) mod macros;
+
 mod error;
 mod methods;
 
@@ -22,9 +25,19 @@ pub use methods::*;
 use num_traits::{Float as Float_, Num, NumAssign, NumOps};
 
 /// A convenience trait combining bounds frequently used for floating-point computations.
+#[cfg(feature = "parallel")]
+pub trait Float: Float_ + Num + NumAssign + NumOps + Sum + Send + Sync {}
+
+/// Blanket implementation of [`Float`] for any type that satisfies its bounds.
+#[cfg(feature = "parallel")]
+impl<T: Float_ + Num + NumAssign + NumOps + Sum + Send + Sync> Float for T {}
+
+/// A convenience trait combining bounds frequently used for floating-point computations.
+#[cfg(not(feature = "parallel"))]
 pub trait Float: Float_ + Num + NumAssign + NumOps + Sum {}
 
 /// Blanket implementation of [`Float`] for any type that satisfies its bounds.
+#[cfg(not(feature = "parallel"))]
 impl<T: Float_ + Num + NumAssign + NumOps + Sum> Float for T {}
 
 /// A generic data structure to hold the results of a normality test.

@@ -1,5 +1,7 @@
 use std::iter::IntoIterator;
 
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 use statrs::distribution::{ContinuousCDF, Normal};
 
 use crate::{Computation, Error, Float};
@@ -60,17 +62,17 @@ pub fn dagostino_k_squared<T: Float, I: IntoIterator<Item = T>>(
     }
 
     let n_t = T::from(n).unwrap();
-    let mean = data.iter().copied().sum::<T>() / n_t;
+    let mean = iter_if_parallel!(&data).copied().sum::<T>() / n_t;
 
-    let deviations: Vec<T> = data.iter().map(|&x| x - mean).collect();
-    let sum_sq_devs = deviations.iter().map(|&d| d.powi(2)).sum::<T>();
+    let deviations: Vec<T> = iter_if_parallel!(&data).map(|&x| x - mean).collect();
+    let sum_sq_devs = iter_if_parallel!(&deviations).map(|&d| d.powi(2)).sum::<T>();
 
     if sum_sq_devs < T::epsilon() {
         return Err(Error::ZeroRange);
     }
 
     // Calculate skewness (s3)
-    let m3 = deviations.iter().map(|&d| d.powi(3)).sum::<T>() / n_t;
+    let m3 = iter_if_parallel!(&deviations).map(|&d| d.powi(3)).sum::<T>() / n_t;
     let m2 = sum_sq_devs / n_t;
     let s3 = m3 / m2.powf(T::from(1.5).unwrap());
 

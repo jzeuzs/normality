@@ -1,5 +1,7 @@
 use std::iter::IntoIterator;
 
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 use statrs::distribution::{ContinuousCDF, Normal};
 
 use crate::{Computation, Error, Float};
@@ -47,15 +49,12 @@ pub fn anderson_darling<T: Float, I: IntoIterator<Item = T>>(
     }
 
     let mut sorted_data = data;
-    sorted_data.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
+    sort_if_parallel!(sorted_data.as_mut_slice(), |a, b| a.partial_cmp(b).unwrap());
 
     let n_t = T::from(n).unwrap();
-    let sum = sorted_data.iter().fold(T::zero(), |acc, &x| acc + x);
-    let mean = sum / n_t;
-
-    let variance =
-        sorted_data.iter().map(|&x| (x - mean).powi(2)).fold(T::zero(), |acc, x| acc + x)
-            / T::from(n - 1).unwrap();
+    let mean = iter_if_parallel!(&sorted_data).copied().sum::<T>() / n_t;
+    let variance = iter_if_parallel!(&sorted_data).map(|&x| (x - mean).powi(2)).sum::<T>()
+        / T::from(n - 1).unwrap();
 
     let std_dev = variance.sqrt();
 
@@ -64,29 +63,20 @@ pub fn anderson_darling<T: Float, I: IntoIterator<Item = T>>(
     }
 
     let standard_normal = Normal::new(0.0, 1.0)?;
-
-    let logp1: Vec<T> = sorted_data
-        .iter()
-        .map(|&x| {
-            let z = (x - mean) / std_dev;
-            T::from(standard_normal.cdf(z.to_f64().unwrap())).unwrap().ln()
-        })
+    let z_scores: Vec<T> = iter_if_parallel!(&sorted_data).map(|&x| (x - mean) / std_dev).collect();
+    let logp1: Vec<T> = iter_if_parallel!(&z_scores)
+        .map(|&z| T::from(standard_normal.cdf(z.to_f64().unwrap())).unwrap().ln())
         .collect();
 
-    let logp2: Vec<T> = sorted_data
-        .iter()
-        .map(|&x| {
-            let z = (x - mean) / std_dev;
-            T::from(standard_normal.cdf(-z.to_f64().unwrap())).unwrap().ln()
-        })
+    let logp2: Vec<T> = iter_if_parallel!(&z_scores)
+        .rev() // Can't easily parallelize rev() directly without collect, but rev is fast
+        .map(|&z| T::from(standard_normal.sf(z.to_f64().unwrap())).unwrap().ln())
         .collect();
 
-    let h_sum: T = (0..n)
+    let h_sum = (0..n)
         .map(|i| {
             let i_t = T::from(i + 1).unwrap();
-            let factor = T::from(2.0).unwrap() * i_t - T::one();
-            let term = logp1[i] + logp2[n - 1 - i];
-            factor * term
+            (T::from(2.0).unwrap() * i_t - T::one()) * (logp1[i] + logp2[i])
         })
         .fold(T::zero(), |acc, val| acc + val);
 
