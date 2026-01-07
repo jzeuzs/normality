@@ -23,6 +23,8 @@ use std::iter::Sum;
 pub use error::Error;
 pub use methods::*;
 use num_traits::{Float as Float_, Num, NumAssign, NumOps};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// A convenience trait combining bounds frequently used for floating-point computations.
 #[cfg(feature = "parallel")]
@@ -45,6 +47,7 @@ impl<T: Float_ + Num + NumAssign + NumOps + Sum> Float for T {}
 /// This structure standardizes the output for various normality tests that
 /// will be part of this crate.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Computation<T: Float> {
     /// The calculated test statistic.
     pub statistic: T,

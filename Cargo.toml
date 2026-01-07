@@ -15,6 +15,7 @@ ndarray = "0.17.0"
 num-traits = "0.2.19"
 rand = "=0.8"
 rayon = { version = "1.11.0", optional = true }
+serde = { version = "1.0.228", features = ["derive"], optional = true }
 statrs = "0.18.0"
 thiserror = "2.0.17"
 
@@ -29,3 +30,4 @@ tempfile = "3.23.0"
 
 [features]
 parallel = ["dep:rayon"]
+serde = ["dep:serde"]
