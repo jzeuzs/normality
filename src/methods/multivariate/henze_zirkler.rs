@@ -56,11 +56,12 @@ pub enum HenzeZirklerMethod {
 /// ];
 ///
 /// // Use LogNormal approximation with population covariance (standard)
-/// let result = henze_zirkler(normal_data.clone(), true, HenzeZirklerMethod::LogNormal).unwrap();
+/// let result = henze_zirkler(normal_data.clone(), false, HenzeZirklerMethod::LogNormal).unwrap();
 /// assert!(result.p_value > 0.05);
 ///
 /// // Use Monte Carlo simulation with 1000 replicates
-/// let mc_result = henze_zirkler(normal_data, true, HenzeZirklerMethod::MonteCarlo(1000)).unwrap();
+/// let mc_result =
+///     henze_zirkler(normal_data, false, HenzeZirklerMethod::MonteCarlo(1000)).unwrap();
 /// assert!(mc_result.p_value > 0.05);
 /// ```
 pub fn henze_zirkler<T: Float + RealField, I: IntoIterator<Item = J>, J: IntoIterator<Item = T>>(
@@ -148,7 +149,14 @@ fn calculate_hz_statistic<T: Float + RealField>(
         s_raw.map(|v| v / T::from(n - 1).unwrap()) // 1/(n-1) (Sample)
     };
 
-    let s_inv = s_mat.try_inverse().ok_or(Error::ZeroRange)?;
+    let s_inv = if let Some(inv) = s_mat.clone().try_inverse() {
+        inv
+    } else {
+        let svd = s_mat.svd(true, true);
+        svd.pseudo_inverse(T::from(1e-15).unwrap())
+            .map_err(|_| Error::Other("Failed to compute pseudoinverse".into()))?
+    };
+
     let x_s_inv = &x_centered * &s_inv; // (n x d) * (d x d) = (n x d)
 
     #[cfg(feature = "parallel")]
@@ -294,14 +302,11 @@ fn run_monte_carlo_p_value<T: Float + RealField>(
 
             let boot_mat = DMatrix::from_row_slice(n, d, &boot_data_flat);
 
-            match calculate_hz_statistic(&boot_mat, use_population_covariance) {
-                Ok(hz_val) => {
-                    valid_replicates += 1;
-                    if hz_val >= observed_hz {
-                        count += 1;
-                    }
-                },
-                Err(_) => {},
+            if let Ok(hz_val) = calculate_hz_statistic(&boot_mat, use_population_covariance) {
+                valid_replicates += 1;
+                if hz_val >= observed_hz {
+                    count += 1;
+                }
             }
         }
 

@@ -351,6 +351,7 @@ dependencies = [
  "nalgebra 0.34.1",
  "nanoid",
  "ndarray",
+ "num-complex",
  "num-traits",
  "pastey",
  "rand 0.8.5",

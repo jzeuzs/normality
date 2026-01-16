@@ -240,7 +240,9 @@ fn calculate_energy_statistic_internal<T: Float>(data: &mut [T]) -> Result<T, Er
     data.par_iter_mut().for_each(|x| *x = (*x - mean) / std_dev);
 
     #[cfg(not(feature = "parallel"))]
-    data.iter_mut().for_each(|x| *x = (*x - mean) / std_dev);
+    for x in data.iter_mut() {
+        *x = (*x - mean) / std_dev;
+    }
 
     sort_if_parallel!(data, |a, b| a.partial_cmp(b).unwrap());
 
