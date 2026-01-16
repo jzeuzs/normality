@@ -39,6 +39,8 @@ jobs:
                       any::moments
                       any::energy
                       any::CompQuadForm
+                      any::MVN
+                      any::mnt
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -54,6 +56,9 @@ jobs:
               
             - name: Doc test
               run: cargo test --doc
+              
+            - name: Doc test (all features)
+              run: cargo test --doc --all-features
 
     nightly:
         name: Test (nightly)
@@ -88,6 +93,8 @@ jobs:
                       any::moments
                       any::energy
                       any::CompQuadForm
+                      any::MVN
+                      any::mnt
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -103,6 +110,9 @@ jobs:
               
             - name: Doc test
               run: cargo test --doc
+              
+            - name: Doc test (all features)
+              run: cargo test --doc --all-features
 
     macOS:
         name: Test (macOS)
@@ -135,6 +145,8 @@ jobs:
                       any::moments
                       any::energy
                       any::CompQuadForm
+                      any::MVN
+                      any::mnt
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -150,6 +162,9 @@ jobs:
               
             - name: Doc test
               run: cargo test --doc
+              
+            - name: Doc test (all features)
+              run: cargo test --doc --all-features
 
     windows:
         name: Test (Windows)
@@ -182,6 +197,8 @@ jobs:
                       any::moments
                       any::energy
                       any::CompQuadForm
+                      any::MVN
+                      any::mnt
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -201,6 +218,9 @@ jobs:
                   
             - name: Doc test
               run: cargo test --doc
+              
+            - name: Doc test (all features)
+              run: cargo test --doc --all-features
 
     MSRV:
         runs-on: ubuntu-latest
