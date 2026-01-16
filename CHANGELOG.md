@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0](https://github.com/jzeuzs/normality/compare/v2.0.0...v3.0.0) - 2026-01-16
+
+### Added
+
+- optionally implement `serde::{Deserialize, Serialize}` in all `struct`s and `enum`s ([#37](https://github.com/jzeuzs/normality/pull/37))
+- multivariate tests of normality ([#36](https://github.com/jzeuzs/normality/pull/36))
+- add `IntegrationError` to `Error` ([#34](https://github.com/jzeuzs/normality/pull/34))
+- implement `serde::{Deserialize, Serialize}` for `Computation` ([#33](https://github.com/jzeuzs/normality/pull/33))
+- parallelism ([#32](https://github.com/jzeuzs/normality/pull/32))
+
+### Fixed
+
+- *(deps)* update rust crate eqsolver to 0.4.0 ([#29](https://github.com/jzeuzs/normality/pull/29))
+
+### Other
+
+- *(test)* integration algorithms, not Monte Carlo simulations
+- *(deps)* update rust crate ndarray to v0.17.2 ([#35](https://github.com/jzeuzs/normality/pull/35))
+- add explanation for flaky tests
+- *(deps)* update rust crate tempfile to v3.24.0 ([#30](https://github.com/jzeuzs/normality/pull/30))
+- *(deps)* update rust crate pastey to v0.2.1 ([#28](https://github.com/jzeuzs/normality/pull/28))
+
 ## [2.0.0](https://github.com/jzeuzs/normality/compare/v1.1.0...v2.0.0) - 2025-12-08
 
 ### Added
