@@ -8,6 +8,7 @@ use crate::{Computation, Error, Float};
 
 /// Specifies the method for p-value calculation in the Henze-Wagner test.
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum HenzeWagnerMethod {
     /// Use the log-normal approximation for the p-value.
     /// This is the standard method derived by Henze and Wagner (1997).

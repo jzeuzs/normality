@@ -8,6 +8,7 @@ use crate::{Computation, Error, Float};
 
 /// Specifies the method for p-value calculation in Mardia's test.
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum MardiaMethod {
     /// Use the asymptotic distributions (Chi-Squared for skewness, Normal for kurtosis).
     Asymptotic,
@@ -17,7 +18,8 @@ pub enum MardiaMethod {
 }
 
 /// Holds the results for both of Mardia's tests (Skewness and Kurtosis).
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct MardiaComputation<T: Float> {
     /// The result of Mardia's Multivariate Skewness test.
     pub skewness: Computation<T>,
