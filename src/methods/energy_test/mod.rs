@@ -11,6 +11,7 @@ use crate::{Computation, Error, Float};
 
 /// Specifies the method for p-value calculation in the Energy test.
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum EnergyTestMethod {
     /// Use a Monte Carlo (parametric bootstrap) simulation with a given number of replicates.
     /// A larger number (e.g., 1000+) yields a more stable p-value.

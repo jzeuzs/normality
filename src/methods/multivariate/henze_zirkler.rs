@@ -10,6 +10,7 @@ use crate::{Computation, Error, Float};
 
 /// Specifies the method for p-value calculation in the Henze-Zirkler test.
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum HenzeZirklerMethod {
     /// Use the log-normal approximation for the p-value.
     /// This is the standard method derived by Henze and Zirkler (1990).
