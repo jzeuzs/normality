@@ -1,5 +1,5 @@
-//! Integration tests for the energy test is flaky due to Monte Carlo simulations. Thus, the need
-//! for retries.
+//! Integration tests for the energy test is flaky due to differences in integration algorithms
+//! between R and Rust. Thus, the need for retries.
 
 use std::env;
 use std::fs::remove_dir_all;
