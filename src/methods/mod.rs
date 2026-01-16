@@ -4,6 +4,7 @@ mod dagostino_k_squared;
 mod energy_test;
 mod jarque_bera;
 mod lilliefors;
+pub mod multivariate;
 mod pearson_chi_squared;
 mod shapiro_wilk;
 

@@ -348,6 +348,7 @@ dependencies = [
  "assert_float_eq",
  "eqsolver",
  "indoc",
+ "nalgebra 0.34.1",
  "nanoid",
  "ndarray",
  "num-traits",

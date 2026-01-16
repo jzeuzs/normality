@@ -22,6 +22,11 @@ pub enum Error {
     #[error("Input data must not contain NaN values.")]
     ContainsNaN,
 
+    /// The dimensions of the input vectors are inconsistent.
+    /// For multivariate tests, all observation vectors must have the same length.
+    #[error("Dimension mismatch: all input vectors must have the same dimension.")]
+    DimensionMismatch,
+
     /// See [`statrs::distribution::NormalError`].
     #[error("{0}")]
     NormalDistributionError(#[from] statrs::distribution::NormalError),

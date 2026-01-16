@@ -1,7 +1,6 @@
 mod imhof;
 
 use std::f64::consts::PI;
-use std::iter::Sum;
 
 use rand::distributions::Distribution;
 #[cfg(feature = "parallel")]
@@ -30,13 +29,11 @@ pub enum EnergyTestMethod {
 /// It calculates the Energy statistic (`E`) and determines the p-value using
 /// either a parametric bootstrap (Monte Carlo) or the asymptotic distribution.
 ///
-/// # Arguments
-///
-/// * `data` - An iterator over floating-point numbers (`impl IntoIterator<Item = T>`). Must contain
-///   at least 5 elements.
-/// * `method` - The method for calculating the p-value
-///   ([`MonteCarlo`](EnergyTestMethod::MonteCarlo) or
-///   [`Asymptotic`](EnergyTestMethod::Asymptotic)).
+/// Takes an argument `data` which is an iterator over floating-point numbers (`impl
+/// IntoIterator<Item = T>`). Must contain   at least 5 elements.
+/// Also takes `method` which is the method for calculating the p-value
+/// ([`MonteCarlo`](EnergyTestMethod::MonteCarlo) or
+/// [`Asymptotic`](EnergyTestMethod::Asymptotic)).
 ///
 /// # Examples
 ///

@@ -39,6 +39,7 @@ jobs:
                       any::moments
                       any::energy
                       any::CompQuadForm
+                      any::MVN
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -88,6 +89,7 @@ jobs:
                       any::moments
                       any::energy
                       any::CompQuadForm
+                      any::MVN
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -135,6 +137,7 @@ jobs:
                       any::moments
                       any::energy
                       any::CompQuadForm
+                      any::MVN
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
@@ -182,6 +185,7 @@ jobs:
                       any::moments
                       any::energy
                       any::CompQuadForm
+                      any::MVN
 
             - name: Cache
               uses: Swatinem/rust-cache@v2
