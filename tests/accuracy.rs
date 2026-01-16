@@ -1,4 +1,5 @@
-//! Integration tests for the energy test is flaky
+//! Integration tests for the energy test is flaky due to Monte Carlo simulations. Thus, the need
+//! for retries.
 
 use std::env;
 use std::fs::remove_dir_all;
