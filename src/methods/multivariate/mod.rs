@@ -6,14 +6,9 @@
 //! # Example
 //!
 //! ```rust
-//! use normality::multivariate::{henze_zirkler, HenzeZirklerMethod};
+//! use normality::multivariate::{HenzeZirklerMethod, henze_zirkler};
 //!
-//! let data = vec![
-//!     vec![0.1, 0.2],
-//!     vec![0.5, 0.1],
-//!     vec![-0.2, 0.3],
-//!     vec![0.8, -0.5],
-//! ];
+//! let data = vec![vec![0.1, 0.2], vec![0.5, 0.1], vec![-0.2, 0.3], vec![0.8, -0.5]];
 //!
 //! // Perform the Henze-Zirkler test
 //! let result = henze_zirkler(data, true, HenzeZirklerMethod::LogNormal).unwrap();

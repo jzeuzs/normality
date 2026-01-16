@@ -271,7 +271,7 @@ macro_rules! gen_mv_accuracy_tests {
                 assert_float_relative_eq!(r_unif_k_stat, unif_result.kurtosis.statistic, 1e-4);
                 assert_float_absolute_eq!(r_unif_k_p, unif_result.kurtosis.p_value, 1e-4);
             }
-            
+
             #[test]
             fn [<pudelko_accuracy_ $n>]() {
                 install_r_packages();
@@ -328,7 +328,7 @@ macro_rules! gen_mv_accuracy_tests {
                     .split_whitespace()
                     .map(|s| f64::from_str(s).unwrap())
                     .collect();
-                
+
                 let r_norm_stat = values[0];
                 let r_unif_stat = values[1];
 
@@ -336,7 +336,7 @@ macro_rules! gen_mv_accuracy_tests {
                 let norm_result = pudelko(
                     norm.clone(),
                     r_param,
-                    10 
+                    10
                 ).unwrap();
 
                 let unif_result = pudelko(
@@ -348,7 +348,7 @@ macro_rules! gen_mv_accuracy_tests {
                 // The statistic is a Supremum (maximum) found via stochastic optimization.
                 // We assert that Rust finds a peak AT LEAST 80% as high as R.
                 // If Rust finds a higher peak (stat > r_stat), that is valid and good.
-                assert!(norm_result.statistic >= r_norm_stat * 0.8, 
+                assert!(norm_result.statistic >= r_norm_stat * 0.8,
                     "Rust Norm Stat ({}) significantly lower than R ({})", norm_result.statistic, r_norm_stat);
 
                 assert!(unif_result.statistic >= r_unif_stat * 0.8,
@@ -361,7 +361,7 @@ macro_rules! gen_mv_accuracy_tests {
                 // Uniform data should be rejected for decent sample sizes (n >= 50)
                 if $n >= 50 {
                     // We expect low p-values for non-normal data
-                    assert!(unif_result.p_value <= 0.2, 
+                    assert!(unif_result.p_value <= 0.2,
                         "Failed to detect Uniform data (p={}) for n={}", unif_result.p_value, $n);
                 }
             }
