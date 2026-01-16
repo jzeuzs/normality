@@ -57,9 +57,10 @@ pub struct Computation<T: Float> {
 
 #[cfg(all(feature = "serde", test))]
 mod computation_serde_test {
-    use super::Computation;
     use serde_test::{Token, assert_ser_tokens};
-    
+
+    use super::Computation;
+
     #[test]
     fn test_computation_tokens() {
         let computation = Computation {
@@ -68,14 +69,17 @@ mod computation_serde_test {
         };
 
         let expected_tokens = vec![
-            Token::Struct { name: "Computation", len: 2 },
+            Token::Struct {
+                name: "Computation",
+                len: 2,
+            },
             Token::Str("statistic"),
             Token::F64(1.0),
             Token::Str("p_value"),
             Token::F64(0.05),
             Token::StructEnd,
         ];
-    
+
         assert_ser_tokens(&computation, &expected_tokens);
     }
 }
