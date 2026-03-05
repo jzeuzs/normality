@@ -75,15 +75,40 @@ pub fn pearson_chi_squared<T: Float, I: IntoIterator<Item = T>>(
 
     // Bin the data based on the normal distribution's CDF.
     let normal_dist = Normal::new(mean.to_f64().unwrap(), std_dev.to_f64().unwrap())?;
-    let mut counts = vec![0; num_classes];
 
-    for &x in &clean_data {
+    #[cfg(feature = "parallel")]
+    let counts = clean_data
+        .par_iter()
+        .fold(
+            || vec![0usize; num_classes],
+            |mut local_counts, &x| {
+                let p = normal_dist.cdf(x.to_f64().unwrap());
+                let bin_num = (1.0 + num_classes_t.to_f64().unwrap() * p).floor() as usize;
+                if bin_num >= 1 && bin_num <= num_classes {
+                    local_counts[bin_num - 1] += 1; // Convert 1-based bin to 0-based index.
+                }
+                local_counts
+            },
+        )
+        .reduce(
+            || vec![0usize; num_classes],
+            |mut a, b| {
+                for (i, &v) in b.iter().enumerate() {
+                    a[i] += v;
+                }
+                a
+            },
+        );
+
+    #[cfg(not(feature = "parallel"))]
+    let counts = clean_data.iter().fold(vec![0usize; num_classes], |mut local_counts, &x| {
         let p = normal_dist.cdf(x.to_f64().unwrap());
         let bin_num = (1.0 + num_classes_t.to_f64().unwrap() * p).floor() as usize;
         if bin_num >= 1 && bin_num <= num_classes {
-            counts[bin_num - 1] += 1; // Convert 1-based bin to 0-based index.
+            local_counts[bin_num - 1] += 1;
         }
-    }
+        local_counts
+    });
 
     // Calculate the chi-squared statistic.
     let expected_count = n_t / num_classes_t;

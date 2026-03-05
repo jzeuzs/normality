@@ -54,15 +54,30 @@ pub fn jarque_bera<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Compu
 
     let n_t = T::from(n).unwrap();
     let mean = iter_if_parallel!(&data).copied().sum::<T>() / n_t;
-    let deviations: Vec<T> = iter_if_parallel!(&data).map(|&x| x - mean).collect();
-    let m2 = iter_if_parallel!(&deviations).map(|&d| d.powi(2)).sum::<T>() / n_t;
+
+    #[cfg(feature = "parallel")]
+    let (m2_sum, m3_sum, m4_sum) = data
+        .par_iter()
+        .map(|&x| {
+            let d = x - mean;
+            (d.powi(2), d.powi(3), d.powi(4))
+        })
+        .reduce(|| (T::zero(), T::zero(), T::zero()), |a, b| (a.0 + b.0, a.1 + b.1, a.2 + b.2));
+
+    #[cfg(not(feature = "parallel"))]
+    let (m2_sum, m3_sum, m4_sum) =
+        data.iter().fold((T::zero(), T::zero(), T::zero()), |(m2, m3, m4), &x| {
+            let d = x - mean;
+            (m2 + d.powi(2), m3 + d.powi(3), m4 + d.powi(4))
+        });
+
+    let m2 = m2_sum / n_t;
+    let m3 = m3_sum / n_t;
+    let m4 = m4_sum / n_t;
 
     if m2 < T::epsilon() {
         return Err(Error::ZeroRange);
     }
-
-    let m3 = iter_if_parallel!(&deviations).map(|&d| d.powi(3)).sum::<T>() / n_t;
-    let m4 = iter_if_parallel!(&deviations).map(|&d| d.powi(4)).sum::<T>() / n_t;
 
     let skewness = m3 / m2.powf(T::from(1.5).unwrap());
     let kurtosis = m4 / m2.powi(2);

@@ -63,22 +63,31 @@ pub fn anderson_darling<T: Float, I: IntoIterator<Item = T>>(
     }
 
     let standard_normal = Normal::new(0.0, 1.0)?;
-    let z_scores: Vec<T> = iter_if_parallel!(&sorted_data).map(|&x| (x - mean) / std_dev).collect();
-    let logp1: Vec<T> = iter_if_parallel!(&z_scores)
-        .map(|&z| T::from(standard_normal.cdf(z.to_f64().unwrap())).unwrap().ln())
-        .collect();
 
-    let logp2: Vec<T> = iter_if_parallel!(&z_scores)
-        .rev() // Can't easily parallelize rev() directly without collect, but rev is fast
-        .map(|&z| T::from(standard_normal.sf(z.to_f64().unwrap())).unwrap().ln())
-        .collect();
+    #[cfg(feature = "parallel")]
+    let h_sum = (0..n)
+        .into_par_iter()
+        .map(|i| {
+            let z_i = (sorted_data[i] - mean) / std_dev;
+            let z_rev = (sorted_data[n - 1 - i] - mean) / std_dev;
+            let lp1 = T::from(standard_normal.cdf(z_i.to_f64().unwrap())).unwrap().ln();
+            let lp2 = T::from(standard_normal.sf(z_rev.to_f64().unwrap())).unwrap().ln();
+            let i_t = T::from(i + 1).unwrap();
+            (T::from(2.0).unwrap() * i_t - T::one()) * (lp1 + lp2)
+        })
+        .sum::<T>();
 
+    #[cfg(not(feature = "parallel"))]
     let h_sum = (0..n)
         .map(|i| {
+            let z_i = (sorted_data[i] - mean) / std_dev;
+            let z_rev = (sorted_data[n - 1 - i] - mean) / std_dev;
+            let lp1 = T::from(standard_normal.cdf(z_i.to_f64().unwrap())).unwrap().ln();
+            let lp2 = T::from(standard_normal.sf(z_rev.to_f64().unwrap())).unwrap().ln();
             let i_t = T::from(i + 1).unwrap();
-            (T::from(2.0).unwrap() * i_t - T::one()) * (logp1[i] + logp2[i])
+            (T::from(2.0).unwrap() * i_t - T::one()) * (lp1 + lp2)
         })
-        .fold(T::zero(), |acc, val| acc + val);
+        .sum::<T>();
 
     let a = -n_t - h_sum / n_t;
     let aa = (T::one() + T::from(0.75).unwrap() / n_t + T::from(2.25).unwrap() / n_t.powi(2)) * a;
