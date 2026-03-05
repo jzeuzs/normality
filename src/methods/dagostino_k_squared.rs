@@ -64,15 +64,26 @@ pub fn dagostino_k_squared<T: Float, I: IntoIterator<Item = T>>(
     let n_t = T::from(n).unwrap();
     let mean = iter_if_parallel!(&data).copied().sum::<T>() / n_t;
 
-    let deviations: Vec<T> = iter_if_parallel!(&data).map(|&x| x - mean).collect();
-    let sum_sq_devs = iter_if_parallel!(&deviations).map(|&d| d.powi(2)).sum::<T>();
+    #[cfg(feature = "parallel")]
+    let (sum_sq_devs, m3_sum) = data
+        .par_iter()
+        .map(|&x| {
+            let d = x - mean;
+            (d.powi(2), d.powi(3))
+        })
+        .reduce(|| (T::zero(), T::zero()), |a, b| (a.0 + b.0, a.1 + b.1));
+
+    #[cfg(not(feature = "parallel"))]
+    let (sum_sq_devs, m3_sum) = data.iter().fold((T::zero(), T::zero()), |(s2, s3), &x| {
+        let d = x - mean;
+        (s2 + d.powi(2), s3 + d.powi(3))
+    });
 
     if sum_sq_devs < T::epsilon() {
         return Err(Error::ZeroRange);
     }
 
-    // Calculate skewness (s3)
-    let m3 = iter_if_parallel!(&deviations).map(|&d| d.powi(3)).sum::<T>() / n_t;
+    let m3 = m3_sum / n_t;
     let m2 = sum_sq_devs / n_t;
     let s3 = m3 / m2.powf(T::from(1.5).unwrap());
 

@@ -144,18 +144,18 @@ fn calculate_hw_statistic<T: Float + RealField>(
     let d_f64 = d as f64;
     let b: f64 = 1.0;
     let b_sq = b * b;
-    let big_d_matrix = &x_centered * x_s_inv.transpose();
 
     #[cfg(feature = "parallel")]
     let sum_exp_djk: f64 = (0..n)
         .into_par_iter()
         .map(|j| {
             let dj = d_diag[j].to_f64().unwrap();
+            let row_j = x_centered.row(j);
             let mut local_sum = 0.0;
 
-            for k in 0..n {
-                let dk = d_diag[k].to_f64().unwrap();
-                let d_cross = big_d_matrix[(j, k)].to_f64().unwrap();
+            for (k, item) in d_diag.iter().enumerate().take(n) {
+                let dk = item.to_f64().unwrap();
+                let d_cross = row_j.dot(&x_s_inv.row(k)).to_f64().unwrap();
                 let d_jk = dj + dk - 2.0 * d_cross;
 
                 local_sum += (-b_sq / 2.0 * d_jk).exp();
@@ -169,11 +169,12 @@ fn calculate_hw_statistic<T: Float + RealField>(
     let sum_exp_djk: f64 = (0..n)
         .map(|j| {
             let dj = d_diag[j].to_f64().unwrap();
+            let row_j = x_centered.row(j);
             let mut local_sum = 0.0;
 
-            for k in 0..n {
-                let dk = d_diag[k].to_f64().unwrap();
-                let d_cross = big_d_matrix[(j, k)].to_f64().unwrap();
+            for (k, item) in d_diag.iter().enumerate().take(n) {
+                let dk = item.to_f64().unwrap();
+                let d_cross = row_j.dot(&x_s_inv.row(k)).to_f64().unwrap();
                 let d_jk = dj + dk - 2.0 * d_cross;
 
                 local_sum += (-b_sq / 2.0 * d_jk).exp();

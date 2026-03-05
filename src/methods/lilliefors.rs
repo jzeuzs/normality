@@ -62,20 +62,31 @@ pub fn lilliefors<T: Float, I: IntoIterator<Item = T>>(data: I) -> Result<Comput
     }
 
     let standard_normal = Normal::new(0.0, 1.0)?;
-    let p_values: Vec<T> = iter_if_parallel!(&sorted_data)
-        .map(|&x| {
+
+    #[cfg(feature = "parallel")]
+    let (d_plus, d_minus) = (0..n)
+        .into_par_iter()
+        .map(|i| {
+            let x = sorted_data[i];
             let z = (x - mean) / std_dev;
-            T::from(standard_normal.cdf(z.to_f64().unwrap())).unwrap()
+            let p = T::from(standard_normal.cdf(z.to_f64().unwrap())).unwrap();
+            let dp = T::from((i + 1) as f64 / n as f64).unwrap() - p;
+            let dm = p - T::from(i as f64 / n as f64).unwrap();
+            (dp, dm)
         })
-        .collect();
+        .reduce(|| (T::neg_infinity(), T::neg_infinity()), |a, b| (a.0.max(b.0), a.1.max(b.1)));
 
-    let d_plus = (0..n)
-        .map(|i| T::from((i + 1) as f64 / n as f64).unwrap() - p_values[i])
-        .fold(T::neg_infinity(), num_traits::Float::max);
-
-    let d_minus = (0..n)
-        .map(|i| p_values[i] - T::from(i as f64 / n as f64).unwrap())
-        .fold(T::neg_infinity(), num_traits::Float::max);
+    #[cfg(not(feature = "parallel"))]
+    let (d_plus, d_minus) = (0..n)
+        .map(|i| {
+            let x = sorted_data[i];
+            let z = (x - mean) / std_dev;
+            let p = T::from(standard_normal.cdf(z.to_f64().unwrap())).unwrap();
+            let dp = T::from((i + 1) as f64 / n as f64).unwrap() - p;
+            let dm = p - T::from(i as f64 / n as f64).unwrap();
+            (dp, dm)
+        })
+        .fold((T::neg_infinity(), T::neg_infinity()), |a, b| (a.0.max(b.0), a.1.max(b.1)));
 
     let k = d_plus.max(d_minus);
 

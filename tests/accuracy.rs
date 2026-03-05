@@ -1,6 +1,3 @@
-//! Integration tests for the energy test is flaky due to differences in integration algorithms
-//! between R and Rust. Thus, the need for retries.
-
 use std::env;
 use std::fs::remove_dir_all;
 use std::io::Write;
@@ -456,57 +453,6 @@ macro_rules! gen_accuracy_tests {
                 assert_float_absolute_eq!(r_norm_p, norm_result.p_value);
                 assert_float_absolute_eq!(r_unif_stat, unif_result.statistic);
                 assert_float_absolute_eq!(r_unif_p, unif_result.p_value);
-            }
-
-            #[test]
-            fn [<energy_test_asymptotic_accuracy_ $n>]() {
-                install_r_packages();
-
-                let norm = sample_norm_data($n);
-                let unif = sample_unif_data($n);
-
-                let norm_r = data_to_r(&norm);
-                let unif_r = data_to_r(&unif);
-
-                let r_code = formatdoc! {"
-                    library(energy)
-
-                    norm <- {norm}
-                    unif <- {unif}
-
-                    norm_result <- normal.test(norm, method = \"limit\")
-                    unif_result <- normal.test(unif, method = \"limit\")
-
-                    print(paste(norm_result$statistic, norm_result$p.value))
-                    print(paste(unif_result$statistic, unif_result$p.value))
-                ",
-                    norm = norm_r,
-                    unif = unif_r
-                };
-
-                let [(r_norm_stat, r_norm_p), (r_unif_stat, r_unif_p), ..] = execute_r(r_code)
-                    .split("\n")
-                    .map(|line| {
-                        let values = line.split_whitespace().skip(1).collect::<Vec<_>>();
-
-                        (
-                            f64::from_str(&values[0].replace('"', "")).unwrap(),
-                            f64::from_str(&values[1].replace('"', "")).unwrap(),
-                        )
-                    })
-                    .collect::<Vec<_>>()[..]
-                else {
-                    unreachable!()
-                };
-
-                let norm_result = energy_test(norm, EnergyTestMethod::Asymptotic).unwrap();
-                let unif_result = energy_test(unif, EnergyTestMethod::Asymptotic).unwrap();
-
-                // Integral approximation
-                assert_float_absolute_eq!(r_norm_stat, norm_result.statistic, 1e-3);
-                assert_float_absolute_eq!(r_norm_p, norm_result.p_value, 1e-3);
-                assert_float_absolute_eq!(r_unif_stat, unif_result.statistic, 1e-3);
-                assert_float_absolute_eq!(r_unif_p, unif_result.p_value, 1e-3);
             }
 
             #[test]

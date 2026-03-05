@@ -172,18 +172,18 @@ fn calculate_hz_statistic<T: Float + RealField>(
     let exponent = 1.0 / (d_f64 + 4.0);
     let b = (1.0 / SQRT_2) * ((2.0 * d_f64 + 1.0) / 4.0).powf(exponent) * n_f64.powf(exponent);
     let b_sq = b * b;
-    let big_d_matrix = &x_centered * x_s_inv.transpose(); // (n x n) matrix of D_ij
 
     #[cfg(feature = "parallel")]
     let sum_exp_djk: f64 = (0..n)
         .into_par_iter()
         .map(|i| {
             let di = d_sq[i].to_f64().unwrap();
+            let row_i = x_centered.row(i);
             let mut local_sum = 0.0;
 
-            for j in 0..n {
-                let dj = d_sq[j].to_f64().unwrap();
-                let dij = big_d_matrix[(i, j)].to_f64().unwrap();
+            for (j, item) in d_sq.iter().enumerate().take(n) {
+                let dj = item.to_f64().unwrap();
+                let dij = row_i.dot(&x_s_inv.row(j)).to_f64().unwrap();
                 let dist_sq = di + dj - 2.0 * dij;
 
                 local_sum += (-b_sq / 2.0 * dist_sq).exp();
@@ -197,11 +197,12 @@ fn calculate_hz_statistic<T: Float + RealField>(
     let sum_exp_djk: f64 = (0..n)
         .map(|i| {
             let di = d_sq[i].to_f64().unwrap();
+            let row_i = x_centered.row(i);
             let mut local_sum = 0.0;
 
-            for j in 0..n {
-                let dj = d_sq[j].to_f64().unwrap();
-                let dij = big_d_matrix[(i, j)].to_f64().unwrap();
+            for (j, item) in d_sq.iter().enumerate().take(n) {
+                let dj = item.to_f64().unwrap();
+                let dij = row_i.dot(&x_s_inv.row(j)).to_f64().unwrap();
                 let dist_sq = di + dj - 2.0 * dij;
 
                 local_sum += (-b_sq / 2.0 * dist_sq).exp();

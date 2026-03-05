@@ -163,10 +163,38 @@ fn calculate_mardia_statistics<T: Float + RealField>(
             .map_err(|_| Error::Other("Failed to compute pseudoinverse".into()))?
     };
 
-    let d_mat = &x_centered * &s_inv * x_centered.transpose();
-    let sum_d_cubed: f64 = d_mat.iter().map(|&v| v.to_f64().unwrap().powi(3)).sum();
+    let x_s_inv = &x_centered * &s_inv;
+
+    #[cfg(feature = "parallel")]
+    let (sum_d_cubed, sum_diag_sq) = (0..n)
+        .into_par_iter()
+        .map(|i| {
+            let row_i = x_centered.row(i);
+            let d_ii = row_i.dot(&x_s_inv.row(i)).to_f64().unwrap();
+            let mut sum_cubed = 0.0;
+            for j in 0..n {
+                let d_ij = row_i.dot(&x_s_inv.row(j)).to_f64().unwrap();
+                sum_cubed += d_ij.powi(3);
+            }
+            (sum_cubed, d_ii.powi(2))
+        })
+        .reduce(|| (0.0, 0.0), |a, b| (a.0 + b.0, a.1 + b.1));
+
+    #[cfg(not(feature = "parallel"))]
+    let (sum_d_cubed, sum_diag_sq) = (0..n)
+        .map(|i| {
+            let row_i = x_centered.row(i);
+            let d_ii = row_i.dot(&x_s_inv.row(i)).to_f64().unwrap();
+            let mut sum_cubed = 0.0;
+            for j in 0..n {
+                let d_ij = row_i.dot(&x_s_inv.row(j)).to_f64().unwrap();
+                sum_cubed += d_ij.powi(3);
+            }
+            (sum_cubed, d_ii.powi(2))
+        })
+        .fold((0.0, 0.0), |a, b| (a.0 + b.0, a.1 + b.1));
+
     let g1p = sum_d_cubed / (n_f64 * n_f64);
-    let sum_diag_sq: f64 = d_mat.diagonal().iter().map(|&v| v.to_f64().unwrap().powi(2)).sum();
     let g2p = sum_diag_sq / n_f64;
     let k_const = ((p_f64 + 1.0) * (n_f64 + 1.0) * (n_f64 + 3.0))
         / (n_f64 * ((n_f64 + 1.0) * (p_f64 + 1.0) - 6.0));
