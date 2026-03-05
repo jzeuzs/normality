@@ -31,10 +31,10 @@ Either run `cargo add normality` or add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-normality = "2"
+normality = "3"
 
 # To enable parallel execution for faster performance on large data:
-# normality = { version = "2", features = ["parallel"] }
+# normality = { version = "3", features = ["parallel"] }
 ```
 
 ## Example Usage
