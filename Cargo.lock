@@ -343,7 +343,7 @@ dependencies = [
 
 [[package]]
 name = "normality"
-version = "3.0.0"
+version = "3.0.1"
 dependencies = [
  "assert_float_eq",
  "eqsolver",
