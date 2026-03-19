@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1](https://github.com/jzeuzs/normality/compare/v3.0.0...v3.0.1) - 2026-03-19
+
+### Other
+
+- *(deps)* update rust crate tempfile to v3.27.0 ([#43](https://github.com/jzeuzs/normality/pull/43))
+- improve and optimize parallelism ([#41](https://github.com/jzeuzs/normality/pull/41))
+
 ## [3.0.0](https://github.com/jzeuzs/normality/compare/v2.0.0...v3.0.0) - 2026-01-16
 
 ### Added
