@@ -76,7 +76,14 @@ The `normality` crate is designed to be modular, extensible, and mathematically 
 | Pudelko                               | Multivariate   | @pudelko_new_2005                   |
 +---------------------------------------+----------------+-------------------------------------+
 
-The above tests are regularly tested for accuracy with their R equivalents.
+# Research impact statement
+THe crate's near-term significance is underpinned by its approach to validation and reproducibility. A feature `normality`'s development cycle is its exhaustive cross-language testing framework. Software, particularly statistical software, requires absolute mathematical precision. To guarantee this, the crate utilizes an automated integration test that directly interfaces with the R statistical computing environment.
+
+For every implemented test, the framework generates datasets that follow $N(0,1)$ (normal) and $U_{[0,1]}$ (uniform) across 28 distinct sample sizes (10-5000 observations). These datasets are simultaneously evaluated in Rust and by established packages in R. The test suite stricly enforces floating-point equivalence on test statistics and $p$-values in order to mathematically prove validity.
+
+To ensure reproducibility, the crate is also tested across all major operating systems (Ubuntu, macOS, and Windows) across multiple Rust toolchains including an enforced Minimum Supported Rust Version (MSRV) of 1.87.0. Furthermore, to address the computational demands of large-scale data, the crate implements optional data-level parallelism, allowing researchers to parallelize sorting and complex statistical calculations with zero code modification. 
+
+This combination of mathematically verified accuracy, cross-platform stability, and scalable performance is what establishes `normality` as a credible utility for researchers building data-intensive applications and pipelines in Rust.
 
 # AI usage disclosure
 
