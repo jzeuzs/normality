@@ -100,7 +100,10 @@ fn mvnorm_e_statistic(x: &DMatrix<f64>) -> f64 {
 /// let result = szekely_rizzo(data, 100).unwrap();
 /// assert!(result.statistic > 0.5);
 /// ```
-pub fn szekely_rizzo<T: Float, I: IntoIterator<Item = J>, J: IntoIterator<Item = T>>(data: I, replicates: usize) -> Result<Computation<T>, Error> {
+pub fn szekely_rizzo<T: Float, I: IntoIterator<Item = J>, J: IntoIterator<Item = T>>(
+    data: I,
+    replicates: usize,
+) -> Result<Computation<T>, Error> {
     let mut n = 0;
     let mut d = None;
     let mut flat_data = Vec::new();
