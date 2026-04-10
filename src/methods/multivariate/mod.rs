@@ -19,8 +19,10 @@ mod henze_wagner;
 mod henze_zirkler;
 mod mardia;
 mod pudelko;
+mod szekely_rizzo;
 
 pub use henze_wagner::{HenzeWagnerMethod, henze_wagner};
 pub use henze_zirkler::{HenzeZirklerMethod, henze_zirkler};
 pub use mardia::{MardiaComputation, MardiaMethod, mardia};
 pub use pudelko::pudelko;
+pub use szekely_rizzo::szekely_rizzo;

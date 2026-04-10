@@ -25,6 +25,7 @@ All test implementations are generic and can work with `f32` or `f64` data types
 - [Henze-Wagner Test](https://doi.org/10.1006/jmva.1997.1684)
 - [Mardia's Test](https://doi.org/10.2307/2334770)
 - [Pudelko's Test](https://web.archive.org/web/20220620071059/https://www.math.uni.wroc.pl/~pms/files/25.1/Article/25.1.3.pdf)
+- [Székely-Rizzo Test](https://doi.org/10.1016/j.jmva.2003.12.002)
 
 ## Installation
 Either run `cargo add normality` or add the crate to your `Cargo.toml`:
