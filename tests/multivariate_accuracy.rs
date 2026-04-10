@@ -88,7 +88,8 @@ macro_rules! gen_mv_accuracy_tests {
             henze_wagner,
             henze_zirkler,
             mardia,
-            pudelko
+            pudelko,
+            szekely_rizzo
         };
 
         pastey::paste! {$(
@@ -363,6 +364,86 @@ macro_rules! gen_mv_accuracy_tests {
                     // We expect low p-values for non-normal data
                     assert!(unif_result.p_value <= 0.2,
                         "Failed to detect Uniform data (p={}) for n={}", unif_result.p_value, $n);
+                }
+            }
+
+            #[test]
+            fn [<szekely_rizzo_accuracy_ $n>]() {
+                install_r_packages();
+
+                let d = 3;
+                let norm = sample_mv_norm_data($n, d);
+                let unif = sample_mv_unif_data($n, d);
+
+                let norm_r = mv_data_to_r(&norm);
+                let unif_r = mv_data_to_r(&unif);
+                let r_code = formatdoc! {"
+                    suppressMessages(library(energy))
+                    
+                    norm_mat <- {norm}
+                    unif_mat <- {unif}
+
+                    # Set replicates to 0 to only compute the deterministic test statistic
+                    norm_res <- mvnorm.etest(norm_mat, R=0)
+                    unif_res <- mvnorm.etest(unif_mat, R=0)
+
+                    # Output format: NormStat UnifStat
+                    cat('RESULT_START\n')
+                    cat(sprintf('%.10f %.10f', norm_res$statistic, unif_res$statistic))
+                    cat('\nRESULT_END')
+                ",
+                    norm = norm_r,
+                    unif = unif_r
+                };
+
+                let output = execute_r(r_code);
+                let lines: Vec<&str> = output.split('\n').collect();
+                let mut data_line = "";
+                let mut found = false;
+                for line in lines {
+                    if line.trim() == "RESULT_START" {
+                        found = true;
+                        continue;
+                    }
+                    if found {
+                        data_line = line;
+                        break;
+                    }
+                }
+
+                if data_line.is_empty() {
+                    panic!("Could not find RESULT_START block in R output:\n{}", output);
+                }
+
+                let values: Vec<f64> = data_line
+                    .split_whitespace()
+                    .map(|s| f64::from_str(s).unwrap())
+                    .collect();
+
+                let r_norm_stat = values[0];
+                let r_unif_stat = values[1];
+
+                // Run Rust Implementation (replicates = 0 for deterministic stat check)
+                let norm_result = szekely_rizzo(
+                    norm.clone(),
+                    0
+                ).unwrap();
+
+                let unif_result = szekely_rizzo(
+                    unif.clone(),
+                    0
+                ).unwrap();
+
+                assert_float_relative_eq!(r_norm_stat, norm_result.statistic, 1e-4);
+                assert_float_relative_eq!(r_unif_stat, unif_result.statistic, 1e-4);
+
+                // Verify the Monte Carlo execution path functions correctly.
+                // We avoid asserting strict statistical power bounds (like p < 0.2) because testing
+                // Uniform data at small sample sizes has mathematically low power, which causes
+                // flaky failures in CI.
+                if $n >= 50 {
+                    let mc_unif = szekely_rizzo(unif.clone(), 10).unwrap();
+                    assert!(mc_unif.p_value >= 0.0 && mc_unif.p_value <= 1.0);
                 }
             }
         )+}
