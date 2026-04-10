@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 env:
-    rust_min: 1.87.0
+    rust_min: 1.89.0
     rust_nightly: nightly
 
 jobs:
