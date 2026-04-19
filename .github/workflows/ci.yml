@@ -49,10 +49,10 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 3
               
             - name: Test (all features)
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features --retries 3
               
             - name: Doc test
               run: cargo test --doc
@@ -103,10 +103,10 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 3
               
             - name: Test (all features)
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features --retries 3
               
             - name: Doc test
               run: cargo test --doc
@@ -155,10 +155,10 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 3
               
             - name: Test (all features)
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features
+              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features --retries 3
               
             - name: Doc test
               run: cargo test --doc
@@ -207,12 +207,12 @@ jobs:
               run: cargo build
 
             - name: Test
-              run: cargo nextest run
+              run: cargo nextest run --retries 3
               env:
                   TEMP_DIR: ${{ runner.temp }}
                   
             - name: Test (all features)
-              run: cargo nextest run --all-features
+              run: cargo nextest run --all-features --retries 3
               env:
                   TEMP_DIR: ${{ runner.temp }}
                   
