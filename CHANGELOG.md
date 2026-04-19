@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0](https://github.com/jzeuzs/normality/compare/v3.0.1...v3.1.0) - 2026-04-19
+
+### Added
+
+- *(multivariate)* Royston's test ([#50](https://github.com/jzeuzs/normality/pull/50))
+- *(multivariate)* Székely-Rizzo test ([#45](https://github.com/jzeuzs/normality/pull/45))
+
+### Other
+
+- version bump
+- *(deps)* update rust crate rayon to v1.12.0 ([#49](https://github.com/jzeuzs/normality/pull/49))
+- *(deps)* update rust crate nanoid to 0.5.0 ([#48](https://github.com/jzeuzs/normality/pull/48))
+
 ## [3.0.1](https://github.com/jzeuzs/normality/compare/v3.0.0...v3.0.1) - 2026-03-19
 
 ### Other
