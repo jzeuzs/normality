@@ -138,7 +138,7 @@ To enable parallelism, add the `parallel` feature to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-normality = { version = "2", features = ["parallel"] }
+normality = { version = "3", features = ["parallel"] }
 ```
 
 When enabled, functions will automatically use parallel iterators and parallel sorting algorithms. No changes to your code are required.
