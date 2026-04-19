@@ -3,244 +3,99 @@ name: CI
 on: [push, pull_request]
 
 env:
-    rust_min: 1.89.0
-    rust_nightly: nightly
+  RUST_MIN: 1.89.0
 
 jobs:
-    test:
-        name: Test
-        runs-on: "ubuntu-latest"
-        steps:
-            - name: Checkout sources
-              uses: actions/checkout@v6
+  test:
+    name: Test (${{ matrix.os }} - ${{ matrix.toolchain }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        toolchain: [stable, nightly]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
 
-            - name: Install toolchain
-              uses: dtolnay/rust-toolchain@master
-              with:
-                  toolchain: stable
-                  
-            - name: Install nextest
-              uses: taiki-e/install-action@v2
-              with:
-                tool: nextest
+      - name: Install toolchain (${{ matrix.toolchain }})
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          
+      - name: Install nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
 
-            - name: Add problem matchers
-              shell: bash
-              run: echo "::add-matcher::.github/matchers/rust.json"
-            
-            - name: Install R
-              uses: r-lib/actions/setup-r@v2
+      - name: Add problem matchers
+        shell: bash
+        run: echo "::add-matcher::.github/matchers/rust.json"
 
-            - name: Install R packages
-              uses: r-lib/actions/setup-r-dependencies@v2
-              with:
-                  extra-packages: |
-                      any::nortest
-                      any::moments
-                      any::energy
-                      any::CompQuadForm
-                      any::MVN
-                      any::mnt
+      - name: Install R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          # Forces Ubuntu to use fast pre-compiled binaries instead of building from source.
+          # Windows and macOS ignore this and use native CRAN binaries automatically.
+          use-public-rspm: true 
 
-            - name: Cache
-              uses: Swatinem/rust-cache@v2
+      - name: Install R packages
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::nortest
+            any::moments
+            any::energy
+            any::CompQuadForm
+            any::MVN
+            any::mnt
 
-            - name: Build
-              run: cargo build
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}-${{ matrix.toolchain }}
 
-            - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 3
-              
-            - name: Test (all features)
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features --retries 3
-              
-            - name: Doc test
-              run: cargo test --doc
-              
-            - name: Doc test (all features)
-              run: cargo test --doc --all-features
+      - name: Build
+        run: cargo build
 
-    nightly:
-        name: Test (nightly)
-        runs-on: ubuntu-latest
+      - name: Test
+        run: cargo nextest run --retries 3
+        env:
+          TEMP_DIR: ${{ runner.temp }}
+          
+      - name: Test (all features)
+        run: cargo nextest run --all-features --retries 3
+        env:
+          TEMP_DIR: ${{ runner.temp }}
+          
+      - name: Doc test
+        run: cargo test --doc
+        
+      - name: Doc test (all features)
+        run: cargo test --doc --all-features
 
-        steps:
-            - name: Checkout sources
-              uses: actions/checkout@v6
+  msrv:
+    name: Check MSRV (${{ env.RUST_MIN }})
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
 
-            - name: Install toolchain (${{ env.rust_nightly }})
-              uses: dtolnay/rust-toolchain@master
-              with:
-                  toolchain: ${{ env.rust_nightly }}
-                  
-            - name: Install nextest
-              uses: taiki-e/install-action@v2
-              with:
-                tool: nextest
+      - name: Install toolchain (${{ env.RUST_MIN }})
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_MIN }}
 
-            - name: Add problem matchers
-              shell: bash
-              run: echo "::add-matcher::.github/matchers/rust.json"
+      - name: Add problem matchers
+        run: echo "::add-matcher::.github/matchers/rust.json"
 
-            - name: Install R
-              uses: r-lib/actions/setup-r@v2
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: msrv-${{ env.RUST_MIN }}
 
-            - name: Install R packages
-              uses: r-lib/actions/setup-r-dependencies@v2
-              with:
-                  extra-packages: |
-                      any::nortest
-                      any::moments
-                      any::energy
-                      any::CompQuadForm
-                      any::MVN
-                      any::mnt
-
-            - name: Cache
-              uses: Swatinem/rust-cache@v2
-
-            - name: Build
-              run: cargo build
-
-            - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 3
-              
-            - name: Test (all features)
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features --retries 3
-              
-            - name: Doc test
-              run: cargo test --doc
-              
-            - name: Doc test (all features)
-              run: cargo test --doc --all-features
-
-    macOS:
-        name: Test (macOS)
-        runs-on: macos-latest
-
-        steps:
-            - name: Checkout sources
-              uses: actions/checkout@v6
-
-            - name: Install toolchain
-              uses: dtolnay/rust-toolchain@stable
-            
-            - name: Install nextest
-              uses: taiki-e/install-action@v2
-              with:
-                tool: nextest
-
-            - name: Add problem matchers
-              shell: bash
-              run: echo "::add-matcher::.github/matchers/rust.json"
-
-            - name: Install R
-              uses: r-lib/actions/setup-r@v2
-
-            - name: Install R packages
-              uses: r-lib/actions/setup-r-dependencies@v2
-              with:
-                  extra-packages: |
-                      any::nortest
-                      any::moments
-                      any::energy
-                      any::CompQuadForm
-                      any::MVN
-                      any::mnt
-
-            - name: Cache
-              uses: Swatinem/rust-cache@v2
-
-            - name: Build
-              run: cargo build
-
-            - name: Test
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --retries 3
-              
-            - name: Test (all features)
-              run: TEMP_DIR="${{ runner.temp }}" cargo nextest run --all-features --retries 3
-              
-            - name: Doc test
-              run: cargo test --doc
-              
-            - name: Doc test (all features)
-              run: cargo test --doc --all-features
-
-    windows:
-        name: Test (Windows)
-        runs-on: windows-latest
-
-        steps:
-            - name: Checkout sources
-              uses: actions/checkout@v6
-
-            - name: Install toolchain
-              uses: dtolnay/rust-toolchain@stable
-              
-            - name: Install nextest
-              uses: taiki-e/install-action@v2
-              with:
-                tool: nextest
-
-            - name: Add problem matchers
-              shell: bash
-              run: echo "::add-matcher::.github/matchers/rust.json"
-
-            - name: Install R
-              uses: r-lib/actions/setup-r@v2
-
-            - name: Install R packages
-              uses: r-lib/actions/setup-r-dependencies@v2
-              with:
-                  extra-packages: |
-                      any::nortest
-                      any::moments
-                      any::energy
-                      any::CompQuadForm
-                      any::MVN
-                      any::mnt
-
-            - name: Cache
-              uses: Swatinem/rust-cache@v2
-
-            - name: Build
-              run: cargo build
-
-            - name: Test
-              run: cargo nextest run --retries 3
-              env:
-                  TEMP_DIR: ${{ runner.temp }}
-                  
-            - name: Test (all features)
-              run: cargo nextest run --all-features --retries 3
-              env:
-                  TEMP_DIR: ${{ runner.temp }}
-                  
-            - name: Doc test
-              run: cargo test --doc
-              
-            - name: Doc test (all features)
-              run: cargo test --doc --all-features
-
-    MSRV:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout sources
-              uses: actions/checkout@v6
-
-            - name: Install toolchain (${{ env.rust_min }})
-              uses: dtolnay/rust-toolchain@master
-              with:
-                  toolchain: ${{ env.rust_min }}
-
-            - name: Add problem matchers
-              run: echo "::add-matcher::.github/matchers/rust.json"
-
-            - name: Cache
-              uses: Swatinem/rust-cache@v2
-
-            - name: Check
-              run: cargo check
-              
-            - name: Check (all features)
-              run: cargo check --all-features
+      - name: Check
+        run: cargo check
+        
+      - name: Check (all features)
+        run: cargo check --all-features
