@@ -75,7 +75,7 @@ jobs:
         run: cargo test --doc --all-features
 
   msrv:
-    name: Check MSRV (${{ env.RUST_MIN }})
+    name: Check MSRV
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
