@@ -22,7 +22,7 @@ fn install_r_packages() {
         Command::new("Rscript")
             .arg("-e")
             // Install MVN for multivariate tests
-            .arg("\"install.packages(c('MVN', 'mnt'))\"")
+            .arg("\"suppressMessages(install.packages(c('MVN', 'mnt')))\"")
             .spawn()
             .unwrap()
             .wait()
@@ -85,10 +85,12 @@ macro_rules! gen_mv_accuracy_tests {
             HenzeWagnerMethod,
             HenzeZirklerMethod,
             MardiaMethod,
+            RoystonMethod,
             henze_wagner,
             henze_zirkler,
             mardia,
             pudelko,
+            royston,
             szekely_rizzo
         };
 
@@ -445,6 +447,83 @@ macro_rules! gen_mv_accuracy_tests {
                     let mc_unif = szekely_rizzo(unif.clone(), 10).unwrap();
                     assert!(mc_unif.p_value >= 0.0 && mc_unif.p_value <= 1.0);
                 }
+            }
+
+            #[test]
+            fn [<royston_accuracy_ $n>]() {
+                install_r_packages();
+
+                let d = 3;
+                let norm = sample_mv_norm_data($n, d);
+                let unif = sample_mv_unif_data($n, d);
+
+                let norm_r = mv_data_to_r(&norm);
+                let unif_r = mv_data_to_r(&unif);
+                let r_code = formatdoc! {"
+                    suppressMessages(library(MVN))
+                    
+                    norm_mat <- {norm}
+                    unif_mat <- {unif}
+
+                    norm_res <- royston(norm_mat)
+                    unif_res <- royston(unif_mat)
+
+                    # Output format: NormStat NormP UnifStat UnifP
+                    cat('RESULT_START\n')
+                    cat(sprintf('%.10f %.10f %.10f %.10f', 
+                        norm_res$Statistic, norm_res$p.value, 
+                        unif_res$Statistic, unif_res$p.value))
+                    cat('\nRESULT_END')
+                ",
+                    norm = norm_r,
+                    unif = unif_r
+                };
+
+                let output = execute_r(r_code);
+                let lines: Vec<&str> = output.split('\n').collect();
+                let mut data_line = "";
+                let mut found = false;
+                for line in lines {
+                    if line.trim() == "RESULT_START" {
+                        found = true;
+                        continue;
+                    }
+                    if found {
+                        data_line = line;
+                        break;
+                    }
+                }
+
+                if data_line.is_empty() {
+                    panic!("Could not find RESULT_START block in R output:\n{}", output);
+                }
+
+                let values: Vec<f64> = data_line
+                    .split_whitespace()
+                    .map(|s| f64::from_str(s).unwrap())
+                    .collect();
+
+                let r_norm_stat = values[0];
+                let r_norm_p = values[1];
+                let r_unif_stat = values[2];
+                let r_unif_p = values[3];
+
+                let norm_result = royston(
+                    norm.clone(),
+                    RoystonMethod::Asymptotic
+                ).unwrap();
+
+                let unif_result = royston(
+                    unif.clone(),
+                    RoystonMethod::Asymptotic
+                ).unwrap();
+
+                // Royston's depends heavily on SW/SF approximation which can vary
+                // fractionally by implementation, so we use a relatively loose bound for exact parity.
+                assert_float_relative_eq!(r_norm_stat, norm_result.statistic, 0.05);
+                assert_float_relative_eq!(r_unif_stat, unif_result.statistic, 0.05);
+                assert_float_absolute_eq!(r_norm_p, norm_result.p_value, 0.02);
+                assert_float_absolute_eq!(r_unif_p, unif_result.p_value, 0.02);
             }
         )+}
     };

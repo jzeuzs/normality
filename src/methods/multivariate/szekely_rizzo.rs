@@ -98,7 +98,7 @@ fn mvnorm_e_statistic(x: &DMatrix<f64>) -> f64 {
 ///
 /// // Run test with 100 parametric bootstrap replicates
 /// let result = szekely_rizzo(data, 100).unwrap();
-/// assert!(result.statistic > 0.5);
+/// assert!(result.p_value > 0.05);
 /// ```
 pub fn szekely_rizzo<T: Float, I: IntoIterator<Item = J>, J: IntoIterator<Item = T>>(
     data: I,
@@ -162,7 +162,6 @@ pub fn szekely_rizzo<T: Float, I: IntoIterator<Item = J>, J: IntoIterator<Item =
 
         #[cfg(not(feature = "parallel"))]
         let greater_count: usize = (0..replicates)
-            .into_iter()
             .map(|_| {
                 let mut rng = thread_rng();
                 let sim_data: Vec<f64> = (0..(n * d)).map(|_| normal.sample(&mut rng)).collect();
