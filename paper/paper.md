@@ -75,6 +75,10 @@ The `normality` crate is designed to be modular, extensible, and mathematically 
 +---------------------------------------+----------------+-------------------------------------+
 | Pudelko                               | Multivariate   | @pudelko_new_2005                   |
 +---------------------------------------+----------------+-------------------------------------+
+| Székely-Rizzo                         | Multivariate   | @szekely_new_2005                   |
++---------------------------------------+----------------+-------------------------------------+
+| Royston                               | Multivariate   | @royston_approximating_1992         |
++---------------------------------------+----------------+-------------------------------------+
 
 # Research impact statement
 THe crate's near-term significance is underpinned by its approach to validation and reproducibility. A feature `normality`'s development cycle is its exhaustive cross-language testing framework. Software, particularly statistical software, requires absolute mathematical precision. To guarantee this, the crate utilizes an automated integration test that directly interfaces with the R statistical computing environment.
@@ -87,9 +91,9 @@ This combination of mathematically verified accuracy, cross-platform stability, 
 
 # AI usage disclosure
 
-Google's Gemini was used by the author solely in order to check the grammatical accuracy of this paper. No generative AI tools were used in the development of the library. 
+Google's Gemini was used by the author solely in order to check the grammatical accuracy and structure of this paper. No generative AI tools were used in the development of the library. 
 
 # Acknowledgments
-We acknowledge the R Core Team [@r_core_team_r_2025] and the authors of the R packages `nortest` [@gross_nortest_2006] and `moments` [@komsta_moments_2005], from which the algorithms of this crate were inspired from. We also acknowledge the authors of the python package `scipy` [@virtanen_scipy_2020] for their Cython implementation of the Shapiro-Wilk test.
+We acknowledge the R Core Team [@r_core_team_r_2025] and the authors of the R packages `nortest` [@gross_nortest_2006], `moments` [@komsta_moments_2005], and `MVN` [@korkmaz_mvn_2014], from which the algorithms of this crate were inspired from. We also acknowledge the authors of the python package `scipy` [@virtanen_scipy_2020] for their Cython implementation of the Shapiro-Wilk test.
 
 # References
