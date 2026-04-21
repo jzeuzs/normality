@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.1](https://github.com/jzeuzs/normality/compare/v3.1.0...v3.1.1) - 2026-04-21
+
+### Other
+
+- improve CI times ([#51](https://github.com/jzeuzs/normality/pull/51))
+
 ## [3.1.0](https://github.com/jzeuzs/normality/compare/v3.0.1...v3.1.0) - 2026-04-19
 
 ### Added
