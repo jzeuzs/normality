@@ -16,7 +16,7 @@ jobs:
         toolchain: [stable, nightly]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install toolchain (${{ matrix.toolchain }})
         uses: dtolnay/rust-toolchain@master
@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install toolchain (${{ env.RUST_MIN }})
         uses: dtolnay/rust-toolchain@master
