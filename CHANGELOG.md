@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.1](https://github.com/jzeuzs/normality/compare/v3.1.0...v3.1.1) - 2026-07-03
+
+### Fixed
+
+- *(deps)* update rust crate nalgebra to 0.35.0 ([#55](https://github.com/jzeuzs/normality/pull/55))
+
+### Other
+
+- *(deps)* update rust crate eqsolver to v0.4.1 ([#56](https://github.com/jzeuzs/normality/pull/56))
+- *(deps)* update actions/checkout action to v7 ([#57](https://github.com/jzeuzs/normality/pull/57))
+- *(deps)* update rust crate xsf to v0.5.1 ([#54](https://github.com/jzeuzs/normality/pull/54))
+- *(deps)* update rust crate pastey to v0.2.3 ([#53](https://github.com/jzeuzs/normality/pull/53))
+- improve CI times ([#51](https://github.com/jzeuzs/normality/pull/51))
+
 ## [3.1.0](https://github.com/jzeuzs/normality/compare/v3.0.1...v3.1.0) - 2026-04-19
 
 ### Added
